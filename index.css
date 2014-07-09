@@ -1,0 +1,124 @@
+
+@font-face {
+  font-family: 'Open Sans';
+  src: url("fonts/OpenSans-Regular-webfont.woff");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Open Sans Bold';
+  src: url("fonts/OpenSans-Bold-webfont.woff");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Open Sans Semibold';
+  src: url("fonts/OpenSans-Semibold-webfont.woff");
+  font-weight: normal;
+  font-style: normal;
+}
+
+body{
+    font-family: 'Open Sans Semibold';
+    background: linear-gradient(rgba(1,1,1,0.3), rgba(1,1,1,0.3), rgba(0,0,0,0));
+}
+body div{
+    height: 600px;
+    color: grey;
+}
+
+.center{
+    text-align:center;
+}
+
+#top-message{
+    text-align:center;
+    color: rgba(1,1,1,0.25);
+    /*text-shadow: 0 1px 2px rgba(1,1,1,0.15);*/
+}
+
+#droparea{
+    height: 290px;
+}
+
+#droplogo{
+    height: 200px;
+    width: 200px;
+    /*box-shadow:  0px 0px 12px grey;*/
+    border-radius: 2em;
+    margin: 0 auto;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border: 6px dashed rgba(1,1,1,0.15);   
+}
+
+#arrow{
+    /*position: absolute;*/
+    margin-top:60px;
+    margin-left:75px;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(1,1,1,0.15);
+}
+
+
+#arrow:before{
+    content:"";
+    position: absolute;
+    margin-top:50px;
+    margin-left:-40px;
+    border-top: 40px solid rgba(1,1,1,0.15);
+    border-left: 40px solid rgba(1,1,1,0);
+    width: 0px;
+}
+
+
+#arrow:after{
+    content:"";
+    position: absolute;
+    margin-top:50px;
+    margin-left:0px;
+    border-top: 40px solid rgba(1,1,1,0.15);
+    border-right: 40px solid rgba(1,1,1,0);
+    width: 0px;
+}
+
+#magnet {
+    height: 140px;
+}
+
+textarea {
+    font-family: 'Open Sans Semibold';
+    box-shadow: inset 2px 2px 2px 0px #dddddd;
+    border: 1px solid #aaa;
+}
+
+#button {
+    height:20px;
+    content:"aja";
+    background: #222 url(/images/alert-overlay.png) repeat-x;
+    display: inline-block;
+    padding: 5px 10px 6px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: bold;
+    line-height: 1;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px #999;
+    text-shadow: 0 -1px 1px #222;
+    border-bottom: 1px solid #222;
+    position: relative;
+    cursor: pointer;
+    background-color: #2daebf;
+}
+
+#airplay{
+    margin:auto;
+    width: 100px;
+    height: 100px;
+}
+#airplay img{
+    max-width:100%; 
+    max-height:100%;
+    background-image: url(AirplayIcon.png);
+}
