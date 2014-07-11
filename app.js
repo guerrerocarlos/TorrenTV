@@ -38,7 +38,6 @@ doc.ondrop = function (event) {
 
 browser.on( 'deviceOn', function( device ) {
    document.getElementById('airplay-icon').src = 'AirplayIcon.png';
-   //document.getElementById('button1').classList.toggle('disabled');
    //document.getElementById('button1').classList.toggle('enabled');
    self.device = device
 });
@@ -46,6 +45,11 @@ browser.on( 'deviceOn', function( device ) {
 browser.start();
 
 var gotTorrent = function (new_torrent){
+
+   document.getElementById('arrow').classList.toggle('visible');
+   document.getElementById('arrow').classList.toggle('hidden');
+   document.getElementById('processing').classList.toggle('processing-icon');
+
   console.log("processing torrent");
   var peerflix = require('peerflix')
   var address = require('network-address');

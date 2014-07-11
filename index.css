@@ -58,7 +58,6 @@ body div{
     margin-left:75px;
     width: 50px;
     height: 50px;
-    background-color: rgba(1,1,1,0.15);
 }
 
 
@@ -127,4 +126,20 @@ textarea {
     max-width:100%; 
     max-height:100%;
     background-image: url(AirplayIcon.png);
+}
+
+.processing-icon {
+    content:"Hola";
+    margin:auto;
+    background-image: url(3.gif);
+    width:32px;
+    height:32px;
+}
+
+.visible{
+    background-color: rgba(1,1,1,0.15);
+}
+
+.hidden {
+    visibility: hidden;
 }
