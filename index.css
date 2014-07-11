@@ -23,7 +23,7 @@ body{
     background: linear-gradient(rgba(1,1,1,0.3), rgba(1,1,1,0.3), rgba(0,0,0,0));
 }
 body div{
-    height: 600px;
+    height: 300px;
     color: grey;
 }
 
@@ -38,7 +38,7 @@ body div{
 }
 
 #droparea{
-    height: 290px;
+    height: 100px;
 }
 
 #droplogo{
@@ -54,7 +54,7 @@ body div{
 
 #arrow{
     /*position: absolute;*/
-    margin-top:60px;
+    margin-top:20px;
     margin-left:75px;
     width: 50px;
     height: 50px;
@@ -93,10 +93,9 @@ textarea {
     border: 1px solid #aaa;
 }
 
-#button {
+#button1 {
     height:20px;
-    content:"aja";
-    background: #222 url(/images/alert-overlay.png) repeat-x;
+    content:"aja"; 
     display: inline-block;
     padding: 5px 10px 6px;
     color: #fff;
@@ -108,8 +107,15 @@ textarea {
     text-shadow: 0 -1px 1px #222;
     border-bottom: 1px solid #222;
     position: relative;
+}
+
+.disabled {
+    background-color: #777;
+}
+
+.enabled {
+    background: #ff5c00 url(alert-overlay.png) repeat-x;
     cursor: pointer;
-    background-color: #2daebf;
 }
 
 #airplay{

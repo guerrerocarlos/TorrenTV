@@ -3,6 +3,7 @@
   <head>
     <title>Torrent 2 AppleTV</title>
       <link rel="stylesheet" href="index.css">
+      <script src="app.js"></script>
   </head>
   <body>
     <div id="body">
@@ -13,22 +14,19 @@
                 </div>
             </div>
             <div id="top-message">
-                Drop .torrent file here 
+                Drop Magnet or .torrent file here 
             </div>
         </div>
         
         <div id="magnet" class="center">
-            
-           <textarea style="resize: none;" name="magnetlink" rows="7" cols="37">Or paste here Torrent's Magnet Link</textarea>
-        </div>
 
         <div class="center">
-            <div id="button" class="center">
+            <!-- <div id="button1" class="disabled center" onclick="gotTorrent();">
                 Send to AppleTV
-            </div>
+            </div> -->
             <div class="center">
                 <div id="airplay">
-                    <img src="AirplayIcon.png">
+                    <img id="airplay-icon" src="NoAirPlay.png">
                 </div>
             </div>
         </div>
