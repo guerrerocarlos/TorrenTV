@@ -1,21 +1,51 @@
 var browser = require( 'airplay2' ).createBrowser();
 var readTorrent = require( 'read-torrent' );
+var numeral = require('numeral');
+var gui = require('nw.gui');
+var emitter = gui.Window.get();
+
+
+var showMessage = function(message){
+  document.getElementById('top-message').innerHTML = message
+}
+var secondaryMessage = function(message){
+  document.getElementById('info-message').innerHTML = message
+}
+
+var bytes = function(num) {
+  return numeral(num).format('0.0b');
+};
+
+var statusMessage = function(unchoked,wires,swarm){
+  document.getElementById('box-message').innerHTML = "Peers: "+unchoked.length+"/"+wires.length+"</br> Speed: "+bytes(swarm.downloadSpeed())+"/s</br>  Downloaded: "+bytes(swarm.downloaded)
+}
+
+var cleanStatus = function(){
+  document.getElementById('box-message').innerHTML = ""
+}
 
 var device = ""
+var movieName = ""
+var intervalArr = new Array();
+var loading = false;
 
 var doc = document.documentElement;
 doc.ondragover = function () { this.className = 'hover'; return false; };
 doc.ondragend = function () { this.className = ''; return false; };
 doc.ondrop = function (event) {
+
+  killIntervals();
+  cleanStatus();
+
   event.preventDefault && event.preventDefault();
   this.className = '';
 
-  // now do something with:
   var magnet = event.dataTransfer.getData('Text');;
   new_torrent = ""
 
   if(!magnet.length>0){
     new_torrent = event.dataTransfer.files[0].path;
+    secondaryMessage(new_torrent.split('/').pop().replace(/\{|\}/g, '').substring(0,44)+"...")
 
     readTorrent(new_torrent, function(err, torrent) {
       if (err) {
@@ -23,6 +53,7 @@ doc.ondrop = function (event) {
         process.exit(1);
       }
       console.log(torrent)
+      movieName = torrent.name
       gotTorrent(torrent);
     });
 
@@ -31,24 +62,37 @@ doc.ondrop = function (event) {
   }else{
     gotTorrent(magnet);
   }
+
   return false;
 };
 
 
-
 browser.on( 'deviceOn', function( device ) {
    document.getElementById('airplay-icon').src = 'AirplayIcon.png';
-   //document.getElementById('button1').classList.toggle('enabled');
    self.device = device
+   console.log('tryToPlay1')
+   emitter.emit('wantToPlay');
 });
 
 browser.start();
 
+function killIntervals(){
+  console.log("Killing all intervals");
+  while(intervalArr.length > 0)
+      clearInterval(intervalArr.pop());
+};
+
 var gotTorrent = function (new_torrent){
 
-   document.getElementById('arrow').classList.toggle('visible');
-   document.getElementById('arrow').classList.toggle('hidden');
-   document.getElementById('processing').classList.toggle('processing-icon');
+   showMessage("Processing Torrent")
+
+   if(!loading){
+     document.getElementById('arrow').classList.toggle('visible');
+     document.getElementById('arrow').classList.toggle('hidden');
+     document.getElementById('processing').classList.toggle('processing-icon');
+   }
+   loading = true
+
 
   console.log("processing torrent");
   var peerflix = require('peerflix')
@@ -59,6 +103,13 @@ var gotTorrent = function (new_torrent){
   var hotswaps = 0;
   var verified = 0;
   var invalid = 0;
+
+  var wires = engine.swarm.wires;
+  var swarm = engine.swarm;
+
+  var active = function(wire) {
+    return !wire.peerChoking;
+  };
 
   engine.on('verify', function() {
     verified++;
@@ -84,9 +135,34 @@ var gotTorrent = function (new_torrent){
     var filelength = engine.server.index.length;
     console.log(href);
 
-    self.device.play(href, 0, function() {
+    showMessage("Searching for AppleTV")
+
+    secondaryMessage(movieName.substring(0, 25)+"  ["+bytes(filelength)+"]");
+    console.log("("+bytes(filelength)+") "+filename.substring(0, 13)+"...");
+
+    var updateStatus = function(){
+      var unchoked = engine.swarm.wires.filter(active);
+      statusMessage(unchoked, wires, swarm)
+    }
+
+
+
+    intervalArr.push(setInterval(updateStatus,250))
+
+    var tryToPlay = function(){
+      console.log('tryToPlay')
+      if(self.device){
+        self.device.play(href, 0, function() {
           console.log(">>> Playing in AirPlay device: "+href)
-    });
+          showMessage("Streaming to your AppleTV")
+        });
+      }
+    };
+
+    emitter.on('wantToPlay', tryToPlay);
+
+    console.log('tryToPlay')
+    emitter.emit('wantToPlay');
 
   });
 }

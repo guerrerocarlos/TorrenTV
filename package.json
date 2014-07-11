@@ -15,19 +15,19 @@
   "license": "ISC",
   "dependencies": {
     "airplay2": "^0.1.4",
+    "numeral": "^1.5.3",
     "peerflix": "^0.10.10"
   },
   "window": {
-    "title": "Torrent2AppleTV",
+    "title": "torrent2AppleTV",
     "icon": "link.png",
     "frame": true,
-    "resizable": false,
+    "resizable": true,
     "show": true,
     "fullscreen": false,
-    "toolbar": false,
+    "toolbar": true,
     "width": 300,
-    "height": 300,
-    "max_width": 800,
-    "max_height": 600
+    "always-on-top": true,
+    "height": 300
   }
 }
