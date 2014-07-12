@@ -134,6 +134,16 @@ doc.ondrop = function (event) {
           secondaryMessage("Downloading .torrent file")
           new_torrent = "/tmp/fromlink.torrent"
           processTorrent(magnet)
+        }else{
+          if(self.device){
+            self.device.play(href, 0, function() {
+              console.log(">>> Playing in AirPlay device: "+href)
+              showMessage("URL sent to AppleTV")
+            });
+          }else{
+            secondaryMessage("Not sent")
+            showMessage("Could not find AppleTV")
+          }
         }
       }
     }
