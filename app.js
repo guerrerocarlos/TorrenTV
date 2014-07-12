@@ -4,6 +4,19 @@ var numeral = require('numeral');
 var gui = require('nw.gui');
 var emitter = gui.Window.get();
 
+//Local File Streamming
+var path = require('path')
+var port = 4007
+var connect = require('connect');
+var address = require('network-address');
+var serveStatic = require('serve-static');
+var escaped_str = require('querystring');
+
+//Downloading torrent from link
+var http = require('http');
+var fs = require('fs');
+
+
 
 var showMessage = function(message){
   document.getElementById('top-message').innerHTML = message
@@ -24,6 +37,28 @@ var cleanStatus = function(){
   document.getElementById('box-message').innerHTML = ""
 }
 
+function processTorrent(new_torrent){
+  readTorrent(new_torrent, function(err, torrent) {
+    if (err) {
+      console.error(err.message);
+      process.exit(1);
+    }
+    console.log(torrent)
+    movieName = torrent.name
+    gotTorrent(torrent);
+  });
+}
+
+var download = function(url, dest, cb) {
+  var file = fs.createWriteStream(dest);
+  var request = http.get(url, function(response) {
+    response.pipe(file);
+    file.on('finish', function() {
+      file.close(cb);  // close() is async, call cb after close completes.
+    });
+  });
+}
+
 var device = ""
 var movieName = ""
 var intervalArr = new Array();
@@ -42,25 +77,66 @@ doc.ondrop = function (event) {
 
   var magnet = event.dataTransfer.getData('Text');;
   new_torrent = ""
+  secondaryMessage("")
 
   if(!magnet.length>0){
     new_torrent = event.dataTransfer.files[0].path;
-    secondaryMessage(new_torrent.split('/').pop().replace(/\{|\}/g, '').substring(0,44)+"...")
 
-    readTorrent(new_torrent, function(err, torrent) {
-      if (err) {
-        console.error(err.message);
-        process.exit(1);
+    //Local .torrent file dragged
+    if(new_torrent.toLowerCase().substring(new_torrent.length-7,new_torrent.length).indexOf('torrent')>-1){
+      secondaryMessage(new_torrent.split('/').pop().replace(/\{|\}/g, '').substring(0,44)+"...")
+
+      processTorrent(new_torrent)
+
+      console.log(new_torrent);
+    }else{
+      //Not a torrent, could be a local Movie, also send
+      if(new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mp4')>-1
+          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mov')>-1){
+        showMessage("Sending to AppleTV")
+
+        var dirname = path.dirname(new_torrent)
+        var basename = path.basename(new_torrent)
+        if(basename.length<25)
+          secondaryMessage("Local File: "+basename);
+        else
+          secondaryMessage("Local File: "+basename.substring(0,25)+" ...");
+
+        var app = connect().use(serveStatic(dirname)).listen(port++);
+
+        var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
+        if(device){
+          device.play(resource, 0, function() {
+            console.log(">>> Playing in AirPlay device: "+basename);
+          });
+        }else{
+          showMessage("No AppleTV device detected");
+          app.close()
+        }
+
+
+      }else{
+        secondaryMessage("Invalid Filetype")
       }
-      console.log(torrent)
-      movieName = torrent.name
-      gotTorrent(torrent);
-    });
-
-
-    console.log(new_torrent);
+    }
   }else{
-    gotTorrent(magnet);
+    if(magnet.toLowerCase().substring(0,6).indexOf('magnet')>-1){
+      //magnet link
+      secondaryMessage("Magnet")
+      gotTorrent(magnet);
+    }else{
+      if(magnet.toLowerCase().substring(0,4).indexOf('http')>-1){
+        secondaryMessage("HTTP Link")
+        //it's a normal http link
+        magnet = magnet.toLowerCase().split("?")[0]
+        secondaryMessage(magnet)
+        if(magnet.substring(magnet.length-7,magnet.length).indexOf('torrent')>-1){
+          secondaryMessage("Downloading .torrent file")
+          new_torrent = "/tmp/fromlink.torrent"
+          processTorrent(magnet)
+        }
+      }
+    }
   }
 
   return false;
@@ -135,7 +211,7 @@ var gotTorrent = function (new_torrent){
     var filelength = engine.server.index.length;
     console.log(href);
 
-    showMessage("Searching for AppleTV")
+    showMessage("Waiting for AppleTV")
 
     secondaryMessage(movieName.substring(0, 25)+"  ["+bytes(filelength)+"]");
     console.log("("+bytes(filelength)+") "+filename.substring(0, 13)+"...");
@@ -145,8 +221,6 @@ var gotTorrent = function (new_torrent){
       statusMessage(unchoked, wires, swarm)
     }
 
-
-
     intervalArr.push(setInterval(updateStatus,250))
 
     var tryToPlay = function(){
@@ -154,14 +228,13 @@ var gotTorrent = function (new_torrent){
       if(self.device){
         self.device.play(href, 0, function() {
           console.log(">>> Playing in AirPlay device: "+href)
-          showMessage("Streaming to your AppleTV")
+          showMessage("Streaming to AppleTV")
         });
       }
     };
 
     emitter.on('wantToPlay', tryToPlay);
 
-    console.log('tryToPlay')
     emitter.emit('wantToPlay');
 
   });
