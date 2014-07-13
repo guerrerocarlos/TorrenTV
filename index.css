@@ -125,7 +125,7 @@ body div{
 .processing-icon {
     content:"Hola";
     margin:auto;
-    background-image: url(3.gif);
+    background-image: url(loading.gif);
     width:32px;
     height:32px;
 }

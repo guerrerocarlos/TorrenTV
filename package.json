@@ -1,6 +1,6 @@
 {
-  "name": "torrent2appletv",
-  "version": "0.0.1",
+  "name": "TorrenTV",
+  "version": "0.9.0",
   "description": "Send torrent streaming directly to AppleTV",
   "main": "index.html",
   "scripts": {
@@ -22,15 +22,15 @@
     "serve-static": "^1.3.2"
   },
   "window": {
-    "title": "torrent2AppleTV",
+    "title": "TorrenTV",
     "icon": "link.png",
     "frame": true,
-    "resizable": true,
+    "resizable": false,
     "show": true,
     "fullscreen": false,
-    "toolbar": true,
+    "toolbar": false,
     "width": 300,
     "always-on-top": true,
-    "height": 300
+    "height":0 
   }
 }

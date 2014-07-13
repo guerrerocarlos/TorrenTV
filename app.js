@@ -4,6 +4,8 @@ var numeral = require('numeral');
 var gui = require('nw.gui');
 var emitter = gui.Window.get();
 
+emitter.resizeTo(300, 320)
+
 //Local File Streamming
 var path = require('path')
 var port = 4007
@@ -16,6 +18,8 @@ var escaped_str = require('querystring');
 var http = require('http');
 var fs = require('fs');
 
+var menu = new gui.Menu();
+//menu.removeAt(1);
 
 
 var showMessage = function(message){
@@ -102,13 +106,15 @@ doc.ondrop = function (event) {
         else
           secondaryMessage("Local File: "+basename.substring(0,25)+" ...");
 
-        var app = connect().use(serveStatic(dirname)).listen(port++);
+        port++;
+        connect().use(serveStatic(dirname)).listen(port);
 
         var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
         if(device){
+          console.log('Telling AppleTV to play: '+resource)
           device.play(resource, 0, function() {
-            console.log(">>> Playing in AirPlay device: "+basename);
           });
+          console.log(">>> Playing in AirPlay device: "+basename);
         }else{
           showMessage("No AppleTV device detected");
           app.close()
@@ -132,7 +138,6 @@ doc.ondrop = function (event) {
         secondaryMessage(magnet)
         if(magnet.substring(magnet.length-7,magnet.length).indexOf('torrent')>-1){
           secondaryMessage("Downloading .torrent file")
-          new_torrent = "/tmp/fromlink.torrent"
           processTorrent(magnet)
         }else{
           if(self.device){
