@@ -13,6 +13,7 @@ var connect = require('connect');
 var address = require('network-address');
 var serveStatic = require('serve-static');
 var escaped_str = require('querystring');
+var last_played = ''
 
 //Downloading torrent from link
 var http = require('http');
@@ -47,7 +48,7 @@ function processTorrent(new_torrent){
       console.error(err.message);
       process.exit(1);
     }
-    console.log(torrent)
+    //console.log(torrent)
     movieName = torrent.name
     gotTorrent(torrent);
   });
@@ -73,7 +74,6 @@ doc.ondragover = function () { this.className = 'hover'; return false; };
 doc.ondragend = function () { this.className = ''; return false; };
 doc.ondrop = function (event) {
 
-  killIntervals();
   cleanStatus();
 
   event.preventDefault && event.preventDefault();
@@ -89,8 +89,14 @@ doc.ondrop = function (event) {
     //Local .torrent file dragged
     if(new_torrent.toLowerCase().substring(new_torrent.length-7,new_torrent.length).indexOf('torrent')>-1){
       secondaryMessage(new_torrent.split('/').pop().replace(/\{|\}/g, '').substring(0,44)+"...")
-
-      processTorrent(new_torrent)
+      console.log(">>>>>>>>>>>>>>>>>>>>>>>>##########")
+      console.log(last_played==new_torrent)
+      if(last_played==new_torrent){
+        emitter.emit('wantToPlay');
+      }else{
+        processTorrent(new_torrent)
+      }
+      last_played = new_torrent
 
       console.log(new_torrent);
     }else{
@@ -129,7 +135,13 @@ doc.ondrop = function (event) {
     if(magnet.toLowerCase().substring(0,6).indexOf('magnet')>-1){
       //magnet link
       secondaryMessage("Magnet")
-      gotTorrent(magnet);
+      if(last_played==magnet){
+        emitter.emit('wantToPlay');
+      }else{
+        gotTorrent(magnet);
+      }
+      last_played = magnet
+
     }else{
       if(magnet.toLowerCase().substring(0,4).indexOf('http')>-1){
         secondaryMessage("HTTP Link")
@@ -174,6 +186,8 @@ function killIntervals(){
 };
 
 var gotTorrent = function (new_torrent){
+
+   killIntervals();
 
    showMessage("Processing Torrent")
 
@@ -228,7 +242,12 @@ var gotTorrent = function (new_torrent){
 
     showMessage("Waiting for AppleTV")
 
-    secondaryMessage(movieName.substring(0, 25)+"  ["+bytes(filelength)+"]");
+    if(movieName.length>25){
+        movieNameToShow = movieName.substring(0, 25)+"..."
+    }else{
+        movieNameToShow = movieName
+    }
+    secondaryMessage(movieNameToShow+"  ["+bytes(filelength)+"]");
     console.log("("+bytes(filelength)+") "+filename.substring(0, 13)+"...");
 
     var updateStatus = function(){
