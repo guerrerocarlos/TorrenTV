@@ -4,7 +4,12 @@ var numeral = require('numeral');
 var gui = require('nw.gui');
 var emitter = gui.Window.get();
 
-emitter.resizeTo(300, 320)
+var isMac = process.platform.indexOf('dar')>-1
+
+//emitter.resizeTo(300, 320)
+if(!isMac){
+  emitter.resizeTo(300, 340)
+}
 
 //Local File Streamming
 var path = require('path')
@@ -22,6 +27,9 @@ var fs = require('fs');
 var menu = new gui.Menu();
 //menu.removeAt(1);
 
+var openInFinder = function(file){
+  gui.Shell.showItemInFolder(file);
+}
 
 var showMessage = function(message){
   document.getElementById('top-message').innerHTML = message
@@ -48,9 +56,19 @@ function processTorrent(new_torrent){
       console.error(err.message);
       process.exit(1);
     }
-    //console.log(torrent)
-    movieName = torrent.name
-    gotTorrent(torrent);
+
+    console.log(torrent)
+    if(JSON.stringify(torrent.files).toLowerCase().indexOf('mkv')>-1){
+      secondaryMessage("<div class='error'>MKV format not supported by AppleTV</div>");
+      showMessage("Torrent contains .MKV Movie");
+      gotTorrent(torrent);
+      movieName = torrent.name
+      movieHash = torrent.infoHash
+    }else{
+      movieName = torrent.name
+      movieHash = torrent.infoHash
+      gotTorrent(torrent);
+    }
   });
 }
 
@@ -66,6 +84,7 @@ var download = function(url, dest, cb) {
 
 var device = ""
 var movieName = ""
+var movieHash = ""
 var intervalArr = new Array();
 var loading = false;
 
@@ -88,7 +107,11 @@ doc.ondrop = function (event) {
 
     //Local .torrent file dragged
     if(new_torrent.toLowerCase().substring(new_torrent.length-7,new_torrent.length).indexOf('torrent')>-1){
-      secondaryMessage(new_torrent.split('/').pop().replace(/\{|\}/g, '').substring(0,44)+"...")
+      if(isMac){
+        secondaryMessage(new_torrent.split('/').pop().replace(/\{|\}/g, '').substring(0,30)+"...")
+      }else{
+        secondaryMessage(new_torrent.split('\\').pop().replace(/\{|\}/g, '').substring(0,30)+"...")
+      }
       console.log(">>>>>>>>>>>>>>>>>>>>>>>>##########")
       console.log(last_played==new_torrent)
       if(last_played==new_torrent){
@@ -247,7 +270,11 @@ var gotTorrent = function (new_torrent){
     }else{
         movieNameToShow = movieName
     }
-    secondaryMessage(movieNameToShow+"  ["+bytes(filelength)+"]");
+    if(movieHash.length>0 && isMac){
+      secondaryMessage("<a class='cursored' onclick='openInFinder(\""+engine.path+"\"); console.log(\"worked!\");'>"+movieNameToShow+" ["+bytes(filelength)+"] </a>");
+    }else{
+      secondaryMessage(movieNameToShow+" ["+bytes(filelength)+"]");
+    }
     console.log("("+bytes(filelength)+") "+filename.substring(0, 13)+"...");
 
     var updateStatus = function(){

@@ -55,8 +55,10 @@ body div{
 }
 #dropmessage{
     width:200px;
+    height:200px;
     position:fixed;
 }
+
 #droparea{
     height: 100px;
 }
@@ -70,6 +72,14 @@ body div{
     margin-top: 30px;
     /*margin-bottom: 30px;*/
     border: 6px dashed rgba(1,1,1,0.15);   
+}
+
+#droplogo:hover {
+    border-color: rgba(1,1,1,0.35);
+}
+
+.error {
+    color: red;
 }
 
 #arrow{
@@ -110,6 +120,11 @@ body div{
     background: #ff5c00 url(alert-overlay.png) repeat-x;
     cursor: pointer;
 }
+.cursored {
+    cursor: pointer;
+    color: blue;
+    text-decoration:underline;
+  }
 
 #airplay{
     margin:auto;

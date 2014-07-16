@@ -14,7 +14,7 @@
   "author": "Carlos Guerrero",
   "license": "ISC",
   "dependencies": {
-    "airplay2": "^0.1.4",
+    "airplay2": "https://github.com/guerrerocarlos/node-airplay2/tarball/master",
     "connect": "^3.0.2",
     "network-address": "0.0.4",
     "numeral": "^1.5.3",
@@ -23,7 +23,7 @@
   },
   "window": {
     "title": "TorrenTV",
-    "icon": "link.png",
+    "icon": "favicon.png",
     "frame": true,
     "resizable": false,
     "show": true,
@@ -31,6 +31,6 @@
     "toolbar": false,
     "width": 300,
     "always-on-top": true,
-    "height":0 
+    "height":300 
   }
 }
