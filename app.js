@@ -4,7 +4,7 @@ var numeral = require('numeral');
 var gui = require('nw.gui');
 var emitter = gui.Window.get();
 
-var isMac = process.platform.indexOf('dar')>-1
+var isMac = process.platform.indexOf('dar')>-1 || process.platform.indexOf('linux')>-1
 
 //emitter.resizeTo(300, 320)
 if(!isMac){
@@ -19,6 +19,7 @@ var address = require('network-address');
 var serveStatic = require('serve-static');
 var escaped_str = require('querystring');
 var last_played = ''
+var peerflix = require('peerflix')
 
 //Downloading torrent from link
 var http = require('http');
@@ -52,18 +53,19 @@ var cleanStatus = function(){
 
 function processTorrent(new_torrent){
   readTorrent(new_torrent, function(err, torrent) {
+      gotTorrent(torrent);
     if (err) {
       console.error(err.message);
       process.exit(1);
     }
 
-    console.log(torrent)
+    //console.log(torrent)
     if(JSON.stringify(torrent.files).toLowerCase().indexOf('mkv')>-1){
       secondaryMessage("<div class='error'>MKV format not supported by AppleTV</div>");
       showMessage("Torrent contains .MKV Movie");
-      gotTorrent(torrent);
       movieName = torrent.name
       movieHash = torrent.infoHash
+      gotTorrent(torrent);
     }else{
       movieName = torrent.name
       movieHash = torrent.infoHash
@@ -91,6 +93,18 @@ var loading = false;
 var doc = document.documentElement;
 doc.ondragover = function () { this.className = 'hover'; return false; };
 doc.ondragend = function () { this.className = ''; return false; };
+doc.ondrop2 = function(event){
+  event.preventDefault && event.preventDefault();
+  this.className = '';
+
+	readTorrent(event.dataTransfer.files[0].path,function(err, torrent){
+		gotTorrent(torrent)
+	});
+
+
+
+}
+
 doc.ondrop = function (event) {
 
   cleanStatus();
@@ -99,11 +113,12 @@ doc.ondrop = function (event) {
   this.className = '';
 
   var magnet = event.dataTransfer.getData('Text');;
-  new_torrent = ""
+  var new_torrent = ""
   secondaryMessage("")
 
   if(!magnet.length>0){
     new_torrent = event.dataTransfer.files[0].path;
+    console.log(new_torrent)
 
     //Local .torrent file dragged
     if(new_torrent.toLowerCase().substring(new_torrent.length-7,new_torrent.length).indexOf('torrent')>-1){
@@ -121,7 +136,6 @@ doc.ondrop = function (event) {
       }
       last_played = new_torrent
 
-      console.log(new_torrent);
     }else{
       //Not a torrent, could be a local Movie, also send
       if(new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mp4')>-1
@@ -208,7 +222,7 @@ function killIntervals(){
       clearInterval(intervalArr.pop());
 };
 
-var gotTorrent = function (new_torrent){
+var gotTorrent = function (this_torrent){
 
    killIntervals();
 
@@ -223,11 +237,12 @@ var gotTorrent = function (new_torrent){
 
 
   console.log("processing torrent");
-  var peerflix = require('peerflix')
   var address = require('network-address');
+  console.log('enviando a peerflix');
 
-  var engine = peerflix(new_torrent, {});
-
+  var engine = peerflix(this_torrent, {});
+  //engine.swarm.piecesGot = 0
+  
   var hotswaps = 0;
   var verified = 0;
   var invalid = 0;
@@ -236,28 +251,35 @@ var gotTorrent = function (new_torrent){
   var swarm = engine.swarm;
 
   var active = function(wire) {
+    console.log("peerChoking")
     return !wire.peerChoking;
   };
 
   engine.on('verify', function() {
+    console.log('verify')
     verified++;
+    engine.swarm.piecesGot += 1;
   });
 
   engine.on('invalid-piece', function() {
+    console.log('invalidpiece')
     invalid++;
   });
 
   var onready = function() {
   //mostrar algo ya que el motor ya inicio
+    console.log('ready')
   };
   if (engine.torrent) onready();
   else engine.on('ready', onready);
 
   engine.on('hotswap', function() {
+    console.log('hotswap')
     hotswaps++;
   });
 
   engine.server.on('listening', function() {
+    console.log('listening')
     var href = 'http://'+address()+':'+engine.server.address().port+'/';
     var filename = engine.server.index.name.split('/').pop().replace(/\{|\}/g, '');
     var filelength = engine.server.index.length;
