@@ -1,4 +1,4 @@
-# [Popcorn Time](https://github.com/torrentv/torrentv)
+# [TorrenTV](https://github.com/torrentv/torrentv)
 
 Stream Torrents to your AppleTV
 
