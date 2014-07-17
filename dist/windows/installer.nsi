@@ -15,10 +15,10 @@ VIAddVersionKey "ProductName" "TorrenTV"
 VIAddVersionKey "ProductVersion" "v${PT_VERSION}"
 VIAddVersionKey "FileDescription" "TorrenTV v${PT_VERSION} Installer"
 VIAddVersionKey "FileVersion" "v${PT_VERSION}"
-VIAddVersionKey "CompanyName" "Popcorn Official"
-VIAddVersionKey "LegalCopyright" "http://popcorntime.io"
+VIAddVersionKey "CompanyName" "TorrenTV Official"
+VIAddVersionKey "LegalCopyright" "http://torrentv.github.io"
 VIProductVersion "${PT_VERSION}.0"
-OutFile "PopcornTimeSetup.exe"
+OutFile "TorrenTVSetup.exe"
 CRCCheck on
 SetCompressor /SOLID lzma
 
@@ -31,13 +31,13 @@ RequestExecutionLevel user
 ;Define UI settings
 !define MUI_LICENSEPAGE_BGCOLOR /GRAY
 !define MUI_UI_HEADERIMAGE_RIGHT "..\..\src\app\images\icon.png"
-!define MUI_ICON "..\..\src\app\images\popcorntime.ico"
-!define MUI_UNICON "..\..\src\app\images\popcorntime.ico"
+!define MUI_ICON "..\..\src\app\images\favicon.ico"
+!define MUI_UNICON "..\..\src\app\images\favicon.ico"
 !define MUI_WELCOMEFINISHPAGE_BITMAP "installer-image.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "uninstaller-image.bmp"
 !define MUI_ABORTWARNING
 !define MUI_FINISHPAGE_LINK "TorrenTV Official Homepage"
-!define MUI_FINISHPAGE_LINK_LOCATION "http://popcorntime.io/"
+!define MUI_FINISHPAGE_LINK_LOCATION "http://torrentv.github.io/"
 
 ;Define the pages
 !insertmacro MUI_PAGE_LICENSE "LICENSE.txt"
@@ -72,24 +72,16 @@ SectionEnd
 Section ; App Files
 
 	;Set output path to InstallDir
-	SetOutPath "$INSTDIR\src\app"
+	SetOutPath "$INSTDIR\src"
 
 	;Add the files
-	File /r "..\..\src\app\css"
-	File /r "..\..\src\app\fonts"
-	File /r "..\..\src\app\images"
-	File /r "..\..\src\app\language"
-	File /r "..\..\src\app\lib"
-	File /r "..\..\src\app\templates"
-	File /r "..\..\src\app\vendor"
-	File "..\..\src\app\index.html"
-	File "..\..\src\app\*.js"
+    File /r "..\..\src\app"
 
 	SetOutPath "$INSTDIR"
 	File "..\..\package.json"
 
 	SetOutPath "$INSTDIR\node_modules"
-	File /r /x "*grunt*" /x "stylus" /x "bower" /x ".bin" /x "bin" /x "test"  /x "test*" /x "example*" "..\..\node_modules\*.*"
+	File /r /x "*grunt*" "..\..\node_modules\*.*"
 
 	;Create uninstaller
 	WriteUninstaller "$INSTDIR\Uninstall.exe"
@@ -101,17 +93,17 @@ Section ; Shortcuts
 	;Working Directory
 	SetOutPath "$INSTDIR"
     
-	CreateShortCut "$INSTDIR\TorrenTV.lnk" "$INSTDIR\node-webkit\TorrenTV.exe" "." "$INSTDIR\src\app\images\popcorntime.ico" "" "" "" "TorrenTV"
+	CreateShortCut "$INSTDIR\TorrenTV.lnk" "$INSTDIR\node-webkit\TorrenTV.exe" "." "$INSTDIR\src\app\images\favicon.ico" "" "" "" "TorrenTV"
 
 	;Start Menu Shortcut
 	RMDir /r "$SMPROGRAMS\TorrenTV"
 	CreateDirectory "$SMPROGRAMS\TorrenTV"
-	CreateShortCut "$SMPROGRAMS\TorrenTV\TorrenTV.lnk" "$INSTDIR\node-webkit\TorrenTV.exe" "." "$INSTDIR\src\app\images\popcorntime.ico" "" "" "" "TorrenTV"
-	CreateShortCut "$SMPROGRAMS\TorrenTV\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\src\app\images\popcorntime.ico" "" "" "" "Uninstall TorrenTV"
+	CreateShortCut "$SMPROGRAMS\TorrenTV\TorrenTV.lnk" "$INSTDIR\node-webkit\TorrenTV.exe" "." "$INSTDIR\src\app\images\favicon.ico" "" "" "" "TorrenTV"
+	CreateShortCut "$SMPROGRAMS\TorrenTV\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\src\app\images\favicon.ico" "" "" "" "Uninstall TorrenTV"
 
 	;Desktop Shortcut
 	Delete "$DESKTOP\TorrenTV.lnk"
-	CreateShortCut "$DESKTOP\TorrenTV.lnk" "$INSTDIR\node-webkit\TorrenTV.exe" "." "$INSTDIR\src\app\images\popcorntime.ico" "" "" "" "TorrenTV"
+	CreateShortCut "$DESKTOP\TorrenTV.lnk" "$INSTDIR\node-webkit\TorrenTV.exe" "." "$INSTDIR\src\app\images\favicon.ico" "" "" "" "TorrenTV"
 
 SectionEnd
 

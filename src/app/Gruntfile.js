@@ -9,7 +9,6 @@ var parseBuildPlatforms = function(argumentPlatform) {
 	inputPlatforms = inputPlatforms.replace(/;ia|;x|;arm/, "");
 
 	var buildAll = /^all$/.test(inputPlatforms);
-	var buildAll = true 
 
 	var buildPlatforms = {
 		mac: /mac/.test(inputPlatforms) || buildAll,
@@ -56,7 +55,6 @@ module.exports = function(grunt) {
 		}
 	});
 
-  grunt.initConfig({
 		nodewebkit: {
 			options: {
 				version: '0.9.2',
@@ -91,7 +89,7 @@ module.exports = function(grunt) {
 				cmd: '"build/cache/linux64/<%= nodewebkit.options.version %>/nw" .'
 			},
 			createDmg: {
-				cmd: 'dist/mac/yoursway-create-dmg/create-dmg --volname "TorrenTV ' + currentVersion + '" --background ./dist/mac/background.png --window-size 480 540 --icon-size 128 --app-drop-link 240 370 --icon "TorrenTV" 240 110 ./build/releases/TorrenTV/mac/TorrenTV-' + currentVersion + '-Mac.dmg ./build/releases/TorrenTV/mac/'
+				cmd: 'dist/mac/yoursway-create-dmg/create-dmg --volname "TorrenTV' + currentVersion + '" --background ./dist/mac/background.png --window-size 480 540 --icon-size 128 --app-drop-link 240 370 --icon "TorrenTV" 240 110 ./build/releases/TorrenTV/mac/TorrenTV-' + currentVersion + '-Mac.dmg ./build/releases/TorrenTV/mac/'
 			},
 			createWinInstall: {
 				cmd: 'makensis dist/windows/installer.nsi'
@@ -117,7 +115,7 @@ module.exports = function(grunt) {
 			linux32: {
 				options: {
 					mode: 'tgz',
-					archive: 'build/releases/TorrenTV/linux32/TorrenTV-' + currentVersion + '-Linux-32.tar.gz'
+					archive: 'build/releases/Popcorn-Time/linux32/TorrenTV-' + currentVersion + '-Linux-32.tar.gz'
 				},
 				expand: true,
 				cwd: 'build/releases/TorrenTV/linux32/TorrenTV',
@@ -141,7 +139,7 @@ module.exports = function(grunt) {
 				},
 				expand: true,
 				cwd: 'dist/windows',
-				src: 'TorrenTVSetup.exe',
+				src: 'TorrenTV.exe',
 				dest: ''
 			}			
 		},

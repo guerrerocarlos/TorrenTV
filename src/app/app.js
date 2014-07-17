@@ -53,7 +53,6 @@ var cleanStatus = function(){
 
 function processTorrent(new_torrent){
   readTorrent(new_torrent, function(err, torrent) {
-      gotTorrent(torrent);
     if (err) {
       console.error(err.message);
       process.exit(1);
@@ -118,7 +117,7 @@ doc.ondrop = function (event) {
 
   if(!magnet.length>0){
     new_torrent = event.dataTransfer.files[0].path;
-    console.log(new_torrent)
+    //console.log(new_torrent)
 
     //Local .torrent file dragged
     if(new_torrent.toLowerCase().substring(new_torrent.length-7,new_torrent.length).indexOf('torrent')>-1){
@@ -127,8 +126,8 @@ doc.ondrop = function (event) {
       }else{
         secondaryMessage(new_torrent.split('\\').pop().replace(/\{|\}/g, '').substring(0,30)+"...")
       }
-      console.log(">>>>>>>>>>>>>>>>>>>>>>>>##########")
-      console.log(last_played==new_torrent)
+      //console.log(">>>>>>>>>>>>>>>>>>>>>>>>##########")
+      //console.log(last_played==new_torrent)
       if(last_played==new_torrent){
         emitter.emit('wantToPlay');
       }else{
@@ -210,14 +209,14 @@ doc.ondrop = function (event) {
 browser.on( 'deviceOn', function( device ) {
    document.getElementById('airplay-icon').src = 'AirplayIcon.png';
    self.device = device
-   console.log('tryToPlay1')
+   //console.log('tryToPlay')
    emitter.emit('wantToPlay');
 });
 
 browser.start();
 
 function killIntervals(){
-  console.log("Killing all intervals");
+  //console.log("Killing all intervals");
   while(intervalArr.length > 0)
       clearInterval(intervalArr.pop());
 };
@@ -236,9 +235,9 @@ var gotTorrent = function (this_torrent){
    loading = true
 
 
-  console.log("processing torrent");
+  //console.log("processing torrent");
   var address = require('network-address');
-  console.log('enviando a peerflix');
+  //console.log('enviando a peerflix');
 
   var engine = peerflix(this_torrent, {});
   //engine.swarm.piecesGot = 0
@@ -251,35 +250,35 @@ var gotTorrent = function (this_torrent){
   var swarm = engine.swarm;
 
   var active = function(wire) {
-    console.log("peerChoking")
+    //console.log("peerChoking")
     return !wire.peerChoking;
   };
 
   engine.on('verify', function() {
-    console.log('verify')
+    //console.log('verify')
     verified++;
     engine.swarm.piecesGot += 1;
   });
 
   engine.on('invalid-piece', function() {
-    console.log('invalidpiece')
+    //console.log('invalidpiece')
     invalid++;
   });
 
   var onready = function() {
   //mostrar algo ya que el motor ya inicio
-    console.log('ready')
+    console.log('We are ready')
   };
   if (engine.torrent) onready();
   else engine.on('ready', onready);
 
   engine.on('hotswap', function() {
-    console.log('hotswap')
+    //console.log('hotswap')
     hotswaps++;
   });
 
   engine.server.on('listening', function() {
-    console.log('listening')
+    console.log('Streaming server is listening')
     var href = 'http://'+address()+':'+engine.server.address().port+'/';
     var filename = engine.server.index.name.split('/').pop().replace(/\{|\}/g, '');
     var filelength = engine.server.index.length;
@@ -293,7 +292,7 @@ var gotTorrent = function (this_torrent){
         movieNameToShow = movieName
     }
     if(movieHash.length>0 && isMac){
-      secondaryMessage("<a class='cursored' onclick='openInFinder(\""+engine.path+"\"); console.log(\"worked!\");'>"+movieNameToShow+" ["+bytes(filelength)+"] </a>");
+      secondaryMessage("<a class='cursored' onclick='openInFinder(\""+engine.path+"\"); '>"+movieNameToShow+" ["+bytes(filelength)+"] </a>");
     }else{
       secondaryMessage(movieNameToShow+" ["+bytes(filelength)+"]");
     }
