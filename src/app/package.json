@@ -2,7 +2,7 @@
   "name": "TorrenTV",
   "version": "0.9.0",
   "description": "Send torrent streaming directly to AppleTV",
-  "main": "app://host/src/app/index.html",
+  "main": "index.html",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
