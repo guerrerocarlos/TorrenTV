@@ -1,12 +1,12 @@
 # [TorrenTV](https://github.com/torrentv/torrentv)
 
+![](https://i.cloudup.com/lML9s1g0Ke.png)
+
 Stream any Torrent to your AppleTV via AirPlay
 
 ## Development status:
 
-Working on compatibility for Chromecast and Roku
-
-![](https://i.cloudup.com/lML9s1g0Ke.png)
+Working on compatibility for Chromecast and Roku...
 
 Visit the project's website at <http://torrentv.github.io>.
 
