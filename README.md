@@ -6,7 +6,7 @@ Stream any Torrent to your AppleTV via AirPlay
 
 Working on compatibility for Chromecast and Roku
 
-[](https://i.cloudup.com/lML9s1g0Ke.png)
+![](https://i.cloudup.com/lML9s1g0Ke.png)
 
 Visit the project's website at <http://torrentv.github.io>.
 
