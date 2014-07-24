@@ -5,6 +5,7 @@ var gui = require('nw.gui');
 var emitter = gui.Window.get();
 
 var isMac = process.platform.indexOf('dar')>-1 || process.platform.indexOf('linux')>-1
+var global_href = "192.168.0.101:8000"
 
 //emitter.resizeTo(300, 320)
 if(!isMac){
@@ -50,6 +51,25 @@ var statusMessage = function(unchoked,wires,swarm){
 var cleanStatus = function(){
   document.getElementById('box-message').innerHTML = ""
 }
+
+var xmlRokuServer = function(){
+  var http = require('http');
+  var mu = require('mu2');
+  var util = require('util');
+  mu.root = 'src/app/';
+
+  var server = http.createServer(function(req,res){
+    console.log('valor de global_href:',global_href)
+    mu.clearCache()
+    var stream = mu.compileAndRender('index.xml', {source: global_href});
+    stream.pipe(res);
+    console.log('saying hola')
+  })
+
+  server.listen(9009)
+}
+
+xmlRokuServer()
 
 function processTorrent(new_torrent){
   readTorrent(new_torrent, function(err, torrent) {
@@ -138,7 +158,8 @@ doc.ondrop = function (event) {
     }else{
       //Not a torrent, could be a local Movie, also send
       if(new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mp4')>-1
-          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mov')>-1){
+          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mov')>-1
+          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mp3')>-1){
         showMessage("Sending to AppleTV")
 
         var dirname = path.dirname(new_torrent)
@@ -159,7 +180,9 @@ doc.ondrop = function (event) {
           console.log(">>> Playing in AirPlay device: "+basename);
         }else{
           showMessage("No AppleTV device detected");
-          app.close()
+          console.log(">>> Serving movie at: "+resource);
+          global_href = resource
+          //app.close()
         }
 
 
@@ -280,6 +303,7 @@ var gotTorrent = function (this_torrent){
   engine.server.on('listening', function() {
     console.log('Streaming server is listening')
     var href = 'http://'+address()+':'+engine.server.address().port+'/';
+    global_href = href
     var filename = engine.server.index.name.split('/').pop().replace(/\{|\}/g, '');
     var filelength = engine.server.index.length;
     console.log(href);
