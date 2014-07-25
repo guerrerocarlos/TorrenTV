@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?> 
 <rsp>
   <videos>
-      <video source="{{source}}" />
+      <video id="3131875696" owner="21963906@N06" secret="f248c84625" server="{{source}}" farm="4" title="VNY 16R" ispublic="1" isfriend="0" isfamily="0" />
   </videos>
 </rsp>
