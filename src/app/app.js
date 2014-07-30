@@ -163,7 +163,7 @@ doc.ondrop = function (event) {
       if(new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mp4')>-1
           || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mov')>-1
           || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mp3')>-1){
-        showMessage("Sending to AppleTV")
+        showMessage("Sending")
 
         var dirname = path.dirname(new_torrent)
         var basename = path.basename(new_torrent)
@@ -214,11 +214,11 @@ doc.ondrop = function (event) {
           if(self.device){
             self.device.play(href, 0, function() {
               console.log(">>> Playing in AirPlay device: "+href)
-              showMessage("URL sent to AppleTV")
+              showMessage("URL sent")
             });
           }else{
             secondaryMessage("Not sent")
-            showMessage("Could not find AppleTV")
+            showMessage("Could not find any Device")
           }
         }
       }
@@ -249,7 +249,9 @@ browser.on( 'deviceOn', function( device ) {
    if(ips.indexOf(device.info[0])<0){
      ips.push(device.info[0])
      console.log(ips)
-     addDeviceElement('AppleTV')
+     var name = device.name.substring(0,7)+ (device.name.length > 7 ? "..." : "")
+     //var name = device.name
+     addDeviceElement(name)
      device.active = true
      console.log("Device found!", device)
      self.devices.push(device)
@@ -264,7 +266,8 @@ browserXbmc.on( 'deviceOn', function( device ) {
    if(ips.indexOf(device.info[0])<0){
      ips.push(device.info[0])
      console.log(ips)
-     addDeviceElement('XBMC')
+     var name = device.name.substring(0,7)+ (device.name.length > 7 ? "..." : "")
+     addDeviceElement(name)
      
      device.active = true
      console.log("XBMC found!", device)
@@ -347,7 +350,7 @@ var gotTorrent = function (this_torrent){
     var filelength = engine.server.index.length;
     console.log(href);
 
-    showMessage("Waiting for AppleTV/Roku")
+    showMessage("Waiting for devices...")
 
     if(movieName.length>25){
         movieNameToShow = movieName.substring(0, 25)+"..."
