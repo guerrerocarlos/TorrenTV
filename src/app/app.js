@@ -1,4 +1,5 @@
 var browser = require( 'airplay-js' ).createBrowser();
+var browserXbmc = require( 'airplay-xbmc' ).createBrowser();
 var readTorrent = require( 'read-torrent' );
 var numeral = require('numeral');
 var gui = require('nw.gui');
