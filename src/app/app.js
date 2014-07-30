@@ -110,6 +110,7 @@ var movieName = ""
 var movieHash = ""
 var intervalArr = new Array();
 var loading = false;
+var ips = []
 
 var doc = document.documentElement;
 doc.ondragover = function () { this.className = 'hover'; return false; };
@@ -175,18 +176,15 @@ doc.ondrop = function (event) {
         connect().use(serveStatic(dirname)).listen(port);
 
         var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
-        if(devices){
-          console.log('Telling AppleTV to play: '+resource)
-          devices[0].play(resource, 0, function() {
-          });
-          console.log(">>> Playing in AirPlay device: "+basename);
-        }else{
-          showMessage("No AppleTV device detected");
-          console.log(">>> Serving movie at: "+resource);
-          global_href = resource
-          //app.close()
-        }
 
+        self.devices.forEach(function(dev){
+          if(dev.active){
+            dev.play(resource, 0, function() {
+              console.log(">>> Playing in AirPlay device: "+resource)
+              showMessage("Streaming")
+            });
+          }
+        });
 
       }else{
         secondaryMessage("Invalid Filetype")
@@ -230,34 +228,50 @@ doc.ondrop = function (event) {
   return false;
 };
 
+function setUIspace(){
+     document.getElementById('airplay').style.width = 50*ips.length+'px';
+}
+
+function toggleDevice(n){
+    self.devices[n].active = !self.devices[n].active
+    document.getElementById('off'+n).classList.toggle('offlabel');
+    document.getElementById('airplay-icon'+n).classList.toggle('deviceiconOff');
+
+}
+
+function addDeviceElement(label){
+     document.getElementById('dropmessage').style.height = '100px';
+     document.getElementById('airplay').innerHTML += '<div onclick="toggleDevice('+(ips.length-1)+');" class="device"><img id="airplay-icon'+(ips.length-1)+'" class="deviceicon"/> <p style="margin-top:-10px;">'+label+'</p> <p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-60px;">OFF</p> </div>'
+     setUIspace()
+}
 
 browser.on( 'deviceOn', function( device ) {
-   document.getElementById('airplay').innerHTML += '<div class="device">'
-   document.getElementById('airplay').innerHTML += '<img id="airplay-icon" src="NoAirPlay2.png">'
-   document.getElementById('airplay').innerHTML += '<p style="margin-top:-10px;">AppleTV</p>'
-   document.getElementById('airplay').innerHTML += '<p style="margin-top:-70px;">OFF</p>'
-   document.getElementById('airplay').innerHTML += '</div>'
-   console.log("Device found!", device)
-   self.devices.push(device)
-   //console.log('tryToPlay')
-   emitter.emit('wantToPlay');
+   if(ips.indexOf(device.info[0])<0){
+     ips.push(device.info[0])
+     console.log(ips)
+     addDeviceElement('AppleTV')
+     device.active = true
+     console.log("Device found!", device)
+     self.devices.push(device)
+     //console.log('tryToPlay')
+     emitter.emit('wantToPlay');
+  }
 });
 
 browser.start();
 
 browserXbmc.on( 'deviceOn', function( device ) {
-   document.getElementById('airplay').innerHTML += '<div class="device">'
-   document.getElementById('airplay').innerHTML += '<img id="airplay-icon" src="NoAirPlay2.png">'
-   document.getElementById('airplay').innerHTML += '<p style="margin-top:-10px;">AppleTV</p>'
-   document.getElementById('airplay').innerHTML += '<p style="margin-top:-70px;">OFF</p>'
-   document.getElementById('airplay').innerHTML += '</div>'
-
-
-   //document.getElementById('airplay-icon').src = 'AirplayIcon.png';
-   console.log("XBMC found!", device)
-   self.devices.push(device)
-   //console.log('tryToPlay')
-   emitter.emit('wantToPlay');
+   if(ips.indexOf(device.info[0])<0){
+     ips.push(device.info[0])
+     console.log(ips)
+     addDeviceElement('XBMC')
+     
+     device.active = true
+     console.log("XBMC found!", device)
+     self.devices.push(device)
+     //console.log('tryToPlay')
+     emitter.emit('wantToPlay');
+   }
 });
 
 browserXbmc.start();
@@ -358,9 +372,13 @@ var gotTorrent = function (this_torrent){
       console.log('tryToPlay')
       if(self.devices){
         console.log(self.devices)
-        self.devices[0].play(href, 0, function() {
-          console.log(">>> Playing in AirPlay device: "+href)
-          showMessage("Streaming to AppleTV")
+        self.devices.forEach(function(dev){
+          if(dev.active){
+            dev.play(href, 0, function() {
+              console.log(">>> Playing in AirPlay device: "+href)
+              showMessage("Streaming")
+            });
+          }
         });
       }
     };

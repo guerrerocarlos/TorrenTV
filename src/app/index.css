@@ -58,6 +58,7 @@ body div{
     width:200px;
     height:200px;
     position:fixed;
+    z-index: 2;
 }
 
 #droparea{
@@ -127,22 +128,37 @@ body div{
     text-decoration:underline;
   }
 
+.offlabel {
+   visibility: hidden;
+}
+
+.deviceicon {
+   content:url("./AirplaySmall.png");
+}
+
+.deviceiconOff {
+   content:url("./AirplaySmallOff.png");
+}
+
+
 #airplay{
     margin:auto;
-    width: 100px;
-    max-width: 100px;
-    height: 100px;
+    width: 50px;
+    height: 100px
+    z-index: 3;
 }
 #airplay img{
-    margin-top:30px;
+    margin-top:15px;
     clear: both;
     width:auto; 
     max-height:100%;
     background-image: url(AirplayIcon.png);
 }
 .device {
-    float:left;
     font-size: 0.5em;
+    z-index:-1;
+    cursor:pointer;
+    display: inline-block;
 }
 
 .processing-icon {
