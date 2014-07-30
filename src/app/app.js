@@ -1,4 +1,5 @@
-var browser = require( 'airplay2' ).createBrowser();
+var browser = require( 'airplay-js' ).createBrowser();
+var browserXbmc = require( 'airplay-xbmc' ).createBrowser();
 var readTorrent = require( 'read-torrent' );
 var numeral = require('numeral');
 var gui = require('nw.gui');
@@ -104,6 +105,7 @@ var download = function(url, dest, cb) {
 }
 
 var device = ""
+var devices = []
 var movieName = ""
 var movieHash = ""
 var intervalArr = new Array();
@@ -173,9 +175,9 @@ doc.ondrop = function (event) {
         connect().use(serveStatic(dirname)).listen(port);
 
         var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
-        if(device){
+        if(devices){
           console.log('Telling AppleTV to play: '+resource)
-          device.play(resource, 0, function() {
+          devices[0].play(resource, 0, function() {
           });
           console.log(">>> Playing in AirPlay device: "+basename);
         }else{
@@ -230,13 +232,36 @@ doc.ondrop = function (event) {
 
 
 browser.on( 'deviceOn', function( device ) {
-   document.getElementById('airplay-icon').src = 'AirplayIcon.png';
-   self.device = device
+   document.getElementById('airplay').innerHTML += '<div class="device">'
+   document.getElementById('airplay').innerHTML += '<img id="airplay-icon" src="NoAirPlay2.png">'
+   document.getElementById('airplay').innerHTML += '<p style="margin-top:-10px;">AppleTV</p>'
+   document.getElementById('airplay').innerHTML += '<p style="margin-top:-70px;">OFF</p>'
+   document.getElementById('airplay').innerHTML += '</div>'
+   console.log("Device found!", device)
+   self.devices.push(device)
    //console.log('tryToPlay')
    emitter.emit('wantToPlay');
 });
 
 browser.start();
+
+browserXbmc.on( 'deviceOn', function( device ) {
+   document.getElementById('airplay').innerHTML += '<div class="device">'
+   document.getElementById('airplay').innerHTML += '<img id="airplay-icon" src="NoAirPlay2.png">'
+   document.getElementById('airplay').innerHTML += '<p style="margin-top:-10px;">AppleTV</p>'
+   document.getElementById('airplay').innerHTML += '<p style="margin-top:-70px;">OFF</p>'
+   document.getElementById('airplay').innerHTML += '</div>'
+
+
+   //document.getElementById('airplay-icon').src = 'AirplayIcon.png';
+   console.log("XBMC found!", device)
+   self.devices.push(device)
+   //console.log('tryToPlay')
+   emitter.emit('wantToPlay');
+});
+
+browserXbmc.start();
+
 
 function killIntervals(){
   //console.log("Killing all intervals");
@@ -308,7 +333,7 @@ var gotTorrent = function (this_torrent){
     var filelength = engine.server.index.length;
     console.log(href);
 
-    showMessage("Waiting for AppleTV")
+    showMessage("Waiting for AppleTV/Roku")
 
     if(movieName.length>25){
         movieNameToShow = movieName.substring(0, 25)+"..."
@@ -331,8 +356,9 @@ var gotTorrent = function (this_torrent){
 
     var tryToPlay = function(){
       console.log('tryToPlay')
-      if(self.device){
-        self.device.play(href, 0, function() {
+      if(self.devices){
+        console.log(self.devices)
+        self.devices[0].play(href, 0, function() {
           console.log(">>> Playing in AirPlay device: "+href)
           showMessage("Streaming to AppleTV")
         });

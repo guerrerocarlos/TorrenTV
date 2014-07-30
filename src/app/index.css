@@ -22,9 +22,10 @@ body{
     font-family: 'Open Sans Semibold';
     background: linear-gradient(rgba(1,1,1,0.3), rgba(1,1,1,0.3), rgba(0,0,0,0));
     -webkit-user-select: none;
+    height: 260px;
 }
 body div{
-    height: 260px;
+
     color: grey;
 }
 
@@ -129,12 +130,19 @@ body div{
 #airplay{
     margin:auto;
     width: 100px;
+    max-width: 100px;
     height: 100px;
 }
 #airplay img{
-    max-width:100%; 
+    margin-top:30px;
+    clear: both;
+    width:auto; 
     max-height:100%;
     background-image: url(AirplayIcon.png);
+}
+.device {
+    float:left;
+    font-size: 0.5em;
 }
 
 .processing-icon {
