@@ -306,7 +306,7 @@ var gotTorrent = function (this_torrent){
 
   var engine = peerflix(this_torrent, {});
   //engine.swarm.piecesGot = 0
-  
+
   var hotswaps = 0;
   var verified = 0;
   var invalid = 0;
@@ -328,6 +328,14 @@ var gotTorrent = function (this_torrent){
   engine.on('invalid-piece', function() {
     //console.log('invalidpiece')
     invalid++;
+  });
+
+  // remove peerflix files upon exit
+  var window = gui.Window.get();
+  window.on('close', function() {
+    engine.remove(function(){
+      gui.App.quit();
+    });
   });
 
   var onready = function() {
@@ -392,5 +400,3 @@ var gotTorrent = function (this_torrent){
 
   });
 }
-
-
