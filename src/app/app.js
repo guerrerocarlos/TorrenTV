@@ -179,6 +179,7 @@ doc.ondrop = function (event) {
 
         self.devices.forEach(function(dev){
           if(dev.active){
+            showMessage("Streaming")
             dev.play(resource, 0, function() {
               console.log(">>> Playing in AirPlay device: "+resource)
               showMessage("Streaming")
@@ -385,6 +386,7 @@ var gotTorrent = function (this_torrent){
         console.log(self.devices)
         self.devices.forEach(function(dev){
           if(dev.active){
+            showMessage("Streaming")
             dev.play(href, 0, function() {
               console.log(">>> Playing in AirPlay device: "+href)
               showMessage("Streaming")
