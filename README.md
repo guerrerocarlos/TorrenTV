@@ -4,24 +4,21 @@
 
 Stream any Torrent to your AppleTV via AirPlay
 
+Also, there is a Channel to stream to Roku Devices: https://owner.roku.com/add/KHN8M
+
 ## Development status:
 
 Working on compatibility for Chromecast and Roku...
 
 Visit the project's website at <http://torrentv.github.io>.
 
-## Getting Started
-
-If you're comfortable getting up and running from a `git clone`, this method is for you.
-
-If you clone the GitHub repository, you will need to build a number of assets using grunt.
-
-The [stable](https://github.com/torrentv/torrentv/tree/stable) branch which contains the latest release.
-
-#### Quickstart:
+#### Quickstart for developers:
 
 1. `npm install -g grunt-cli bower`
 1. `npm install`
 1. `grunt build`
 1. `grunt start`
 
+#### Create Windows, Linux32bits, Linux 64bits and Mac Executables and Installers:
+
+1. `grunt dist`

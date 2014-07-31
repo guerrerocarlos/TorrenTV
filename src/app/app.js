@@ -138,7 +138,7 @@ doc.ondrop = function (event) {
   var new_torrent = ""
   secondaryMessage("")
 
-  if(!magnet.length>0){
+  if(!magnet.length>0 && event.dataTransfer.files.length >0){
     new_torrent = event.dataTransfer.files[0].path;
     //console.log(new_torrent)
 
@@ -162,6 +162,10 @@ doc.ondrop = function (event) {
       //Not a torrent, could be a local Movie, also send
       if(new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mp4')>-1
           || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mov')>-1
+          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mkv')>-1
+          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('avi')>-1
+          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('m4a')>-1
+          || new_torrent.toLowerCase().substring(new_torrent.length-4,new_torrent.length).indexOf('flac')>-1
           || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mp3')>-1){
         showMessage("Sending")
 
