@@ -4,6 +4,9 @@ var readTorrent = require( 'read-torrent' );
 var numeral = require('numeral');
 var gui = require('nw.gui');
 var emitter = gui.Window.get();
+var chromecastjs = require('chromecast-js')
+
+var chromecaster = new chromecastjs.Browser()
 
 var isMac = process.platform.indexOf('dar')>-1 || process.platform.indexOf('linux')>-1
 var global_href = "192.168.0.101:8000"
@@ -181,6 +184,7 @@ doc.ondrop = function (event) {
 
         var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
 
+        console.log(resource)
         self.devices.forEach(function(dev){
           if(dev.active){
             showMessage("Streaming")
@@ -249,6 +253,26 @@ function addDeviceElement(label){
      document.getElementById('airplay').innerHTML += '<div onclick="toggleDevice('+(ips.length-1)+');" class="device"><img id="airplay-icon'+(ips.length-1)+'" class="deviceicon"/> <p style="margin-top:-10px;">'+label+'</p> <p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-60px;">OFF</p> </div>'
      setUIspace()
 }
+
+function addChromecastDeviceElement(label){
+     document.getElementById('dropmessage').style.height = '100px';
+     var htmlDevice = ' <div  class="device"> <div class="chromecontrols"> <div class="controlbutton" onclick="togglePlay('+(ips.length-1)+');"><img class="playbutton"/></div> <div class="controlbutton" onclick="toggleStop('+(ips.length-1)+');"><img class="stopbutton"/></div> </div><img id="airplay-icon'+(ips.length-1)+'" class="chromeicon"/> <p style="margin-top:-3px;">'+label+'</p> <div onclick="toggleDevice('+(ips.length-1)+');"><p id="off'+(ips.length-1)+'" class="" style="margin-top:-68px;margin-left:-8px;" class="offlabel">OFF</p> </div></div> </div>'
+
+     document.getElementById('airplay').innerHTML += htmlDevice
+     setUIspace()
+}
+
+chromecaster.on( 'deviceOn', function( device ) {
+   console.log(device)
+   if(ips.indexOf(device.config.addresses[0])<0){
+     ips.push(device.config.addresses[0])
+     var name = device.config.name.substring(0,7)+ (device.config.name.length > 7 ? "..." : "")
+     addChromecastDeviceElement(name)
+     device.active = true
+     self.devices.push(device)
+     emitter.emit('wantToPlay');
+   }
+});
 
 browser.on( 'deviceOn', function( device ) {
    if(ips.indexOf(device.info[0])<0){
@@ -365,13 +389,13 @@ var gotTorrent = function (this_torrent){
 
     showMessage("Waiting for devices...")
 
-    if(movieName.length>25){
-        movieNameToShow = movieName.substring(0, 25)+"..."
+    if(movieName.length>15){
+        movieNameToShow = movieName.substring(0, 15)+"..."
     }else{
         movieNameToShow = movieName
     }
     if(movieHash.length>0 && isMac){
-      secondaryMessage("<a class='cursored' onclick='openInFinder(\""+engine.path+"\"); '>"+movieNameToShow+" ["+bytes(filelength)+"] </a>");
+      secondaryMessage("<a class='cursored' onclick='openInFinder(\'"+engine.path+"\'); '>"+movieNameToShow+" ["+bytes(filelength)+"] </a>");
     }else{
       secondaryMessage(movieNameToShow+" ["+bytes(filelength)+"]");
     }

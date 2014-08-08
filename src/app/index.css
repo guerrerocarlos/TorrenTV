@@ -136,19 +136,43 @@ body div{
    content:url("./AirplaySmall.png");
 }
 
-.deviceiconOff {
-   content:url("./AirplaySmallOff.png");
+.chromeicon {
+   content:url("./chromelogo.png");
 }
 
+.playbutton {
+    margin-top: -20px;
+   content:url("./play.png");
+    margin-right:9px;
+}
+
+.stopbutton {
+    margin-top: -20px;
+   content:url("./stop.png");
+}
+
+.pausebutton {
+   content:url("./pause.png");
+}
+
+.deviceiconOff {
+    
+    content:url("./AirplaySmallOff.png");
+}
+
+.controlbutton {
+    display: inline-block;
+}
 
 #airplay{
     margin:auto;
-    width: 50px;
+    width: 200px;
     height: 100px
     z-index: 3;
 }
+
 #airplay img{
-    margin-top:15px;
+
     clear: both;
     width:auto; 
     max-height:100%;
