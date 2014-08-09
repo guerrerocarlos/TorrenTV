@@ -1,6 +1,6 @@
 {
   "name": "TorrenTV",
-  "version": "0.9.5",
+  "version": "0.9.6",
   "description": "Send torrent streaming directly to AppleTV/XBMC via Airplay",
   "main": "app://host/src/app/index.html",
   "scripts": {
@@ -30,10 +30,10 @@
     "title": "TorrenTV",
     "icon": "src/app/images/icon.png",
     "frame": true,
-    "resizable": true,
+    "resizable": false,
     "show": true,
     "fullscreen": false,
-    "toolbar": true,
+    "toolbar": false,
     "width": 300,
     "always-on-top": true,
     "height": 300

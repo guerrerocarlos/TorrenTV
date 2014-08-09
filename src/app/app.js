@@ -84,7 +84,7 @@ function processTorrent(new_torrent){
 
     //console.log(torrent)
     if(JSON.stringify(torrent.files).toLowerCase().indexOf('mkv')>-1){
-      secondaryMessage("<div class='error'>MKV format not supported by AppleTV</div>");
+      secondaryMessage("<div class='error'>MKV movie format not supported.</div>");
       showMessage("Torrent contains .MKV Movie");
       movieName = torrent.name
       movieHash = torrent.infoHash
@@ -113,6 +113,7 @@ var movieName = ""
 var movieHash = ""
 var intervalArr = new Array();
 var loading = false;
+var loadingPlayer = false;
 var ips = []
 
 var doc = document.documentElement;
@@ -128,6 +129,34 @@ doc.ondrop2 = function(event){
 
 
 
+}
+
+function playInDevices(resource){
+        self.devices.forEach(function(dev){
+          if(dev.active){
+            showMessage("Streaming")
+            dev.play(resource, 0, function() {
+              self.playingResource = resource
+              console.log(">>> Playing in device: "+resource)
+              showMessage("Streaming")
+              if(dev.togglePlayIcon){
+                dev.togglePlayIcon()
+                if(dev.playing == false || dev.stopped == true){
+                    dev.togglePlayIcon()
+                    console.log("Toggling play icon")
+                }
+
+                if(dev.enabled==false){
+                  dev.togglePlayControls()
+                }
+                dev.playing = true
+                dev.enabled = true
+                dev.stopped = false
+                dev.loadingPlayer = false
+              }
+            });
+          }
+        });
 }
 
 doc.ondrop = function (event) {
@@ -185,15 +214,22 @@ doc.ondrop = function (event) {
         var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
 
         console.log(resource)
+        playInDevices(resource)
+        /*
         self.devices.forEach(function(dev){
           if(dev.active){
             showMessage("Streaming")
             dev.play(resource, 0, function() {
               console.log(">>> Playing in AirPlay device: "+resource)
               showMessage("Streaming")
+              if(dev.togglePlayIcon){
+                console.log("Toggling play icon")
+                dev.togglePlayIcon()
+              }
             });
           }
         });
+        */
 
       }else{
         secondaryMessage("Invalid Filetype")
@@ -243,26 +279,54 @@ function setUIspace(){
 
 
 function toggleStop(n){
-    self.devices[n].player.stop(function(){
-      console.log('stoped!');
-      self.devices[n].playing = false
-    });
+    if(self.devices[n].enabled==true){
+      self.devices[n].player.stop(function(){
+        console.log('stoped!');
+        self.devices[n].playing = false
+        self.devices[n].stopped = true
+      });
+
+      if(self.devices[n].playing==true){
+        document.getElementById('playbutton'+n).classList.toggle('pausebutton');
+      }
+  }
 }
 
 function togglePlay(n){
-    if(self.devices[n].playing==true){
-        self.devices[n].player.pause(function(){
-            console.log('paused!')
-            self.devices[n].playing = false
-            document.getElementById('playbutton'+n).classList.toggle('pausebutton');
-        })
-    }else{
-        self.devices[n].player.play(function(){
-            console.log('go to play!')
-            self.devices[n].playing = true
-            document.getElementById('playbutton'+n).classList.toggle('pausebutton');
-        })
-    }
+    if(self.devices[n].enabled==true){
+      if(self.devices[n].playing==true){
+          self.devices[n].player.pause(function(){
+              console.log('paused!')
+              self.devices[n].playing = false
+              document.getElementById('playbutton'+n).classList.toggle('pausebutton');
+          })
+      }else{
+          console.log('not paused!')
+          if(self.devices[n].stopped == true){
+            console.log('seems stopped')
+            if(self.devices[n].loadingPlayer != true){
+                self.devices[n].loadingPlayer = true
+                self.devices[n].play(this.playingResource,0,function(){
+                    console.log('telling to play from start again')
+                    if(devices[n].togglePlayIcon){
+                      console.log("Toggling play icon")
+                      self.devices[n].playing = true
+                      self.devices[n].stopped = false
+                      self.devices[n].togglePlayIcon()
+                      self.devices[n].loadingPlayer = false
+                    }
+                })
+            }
+          }else{
+            self.devices[n].player.play(function(){
+                console.log('just go to play!')
+                self.devices[n].playing = true
+                self.devices[n].stopped = false
+                document.getElementById('playbutton'+n).classList.toggle('pausebutton');
+            })
+         }
+      }
+  }
 }
 
 function toggleDevice(n){
@@ -287,7 +351,7 @@ function addDeviceElement(label){
 
 function addChromecastDeviceElement(label){
      document.getElementById('dropmessage').style.height = '100px';
-     var htmlDevice = ' <div  class="device" style="margin-top:22px;"> <div class="chromecontrols"> <div id="playbutton'+(ips.length-1)+'" class="controlbutton" onclick="togglePlay('+(ips.length-1)+');"><img class="playbutton"/></div> <div class="controlbutton" onclick="toggleStop('+(ips.length-1)+');"><img class="stopbutton"/></div> </div><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" class="chromeicon"/> <p style="margin-top:-3px;">'+label+'</p> <div onclick="toggleChromecastDevice('+(ips.length-1)+');"><p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-36px;margin-left:-8px;" >OFF</p> </div></div> </div>'
+     var htmlDevice = ' <div  class="device" style="margin-top:22px;"> <div class="chromecontrols"> <div id="playbutton'+(ips.length-1)+'" class="controlbutton hidden" onclick="togglePlay('+(ips.length-1)+');"><img class="playbutton"/></div> <div id="stopbutton'+(ips.length-1)+'"class="controlbutton hidden" onclick="toggleStop('+(ips.length-1)+');"><img class="stopbutton"/></div> </div><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" class="chromeicon"/> <p style="margin-top:-3px;">'+label+'</p> <div onclick="toggleChromecastDevice('+(ips.length-1)+');"><p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-36px;margin-left:-8px;" >OFF</p> </div></div> </div>'
 
      document.getElementById('airplay').innerHTML += htmlDevice
      setUIspace()
@@ -299,7 +363,19 @@ chromecaster.on( 'deviceOn', function( device ) {
      ips.push(device.config.addresses[0])
      var name = device.config.name.substring(0,7)+ (device.config.name.length > 7 ? "..." : "")
      addChromecastDeviceElement(name)
-     device.active = true
+     device.active       = true
+     device.enabled      = false
+     device.playerButton = true
+     device.stopped      = false
+     device.playerButtonHtml = document.getElementById('playbutton'+(ips.length-1)).classList
+     device.stopButtonHtml = document.getElementById('stopbutton'+(ips.length-1)).classList
+     device.togglePlayIcon = function(){
+         device.playerButtonHtml.toggle('pausebutton');
+     }
+     device.togglePlayControls = function(){
+         device.playerButtonHtml.toggle('hidden');
+         device.stopButtonHtml.toggle('hidden');
+     }
      self.devices.push(device)
      emitter.emit('wantToPlay');
    }
@@ -443,15 +519,22 @@ var gotTorrent = function (this_torrent){
       console.log('tryToPlay')
       if(self.devices){
         console.log(self.devices)
+        playInDevices(href)
+        /*
         self.devices.forEach(function(dev){
           if(dev.active){
             showMessage("Streaming")
             dev.play(href, 0, function() {
-              console.log(">>> Playing in AirPlay device: "+href)
+              console.log(">>> Playing in devices: "+href)
               showMessage("Streaming")
+              if(dev.togglePlayIcon){
+                console.log("Toggling play icon")
+                dev.togglePlayIcon()
+              }
             });
           }
         });
+        */
       }
     };
 
