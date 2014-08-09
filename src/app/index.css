@@ -144,15 +144,20 @@ body div{
     margin-top: -20px;
    content:url("./play.png");
     margin-right:9px;
+    cursor:pointer;
 }
 
 .stopbutton {
     margin-top: -20px;
    content:url("./stop.png");
+    cursor:pointer;
 }
 
 .pausebutton {
+    margin-top: -20px;
    content:url("./pause.png");
+    margin-right:9px;
+    cursor:pointer;
 }
 
 .deviceiconOff {

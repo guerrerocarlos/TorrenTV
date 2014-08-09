@@ -174,10 +174,10 @@ doc.ondrop = function (event) {
 
         var dirname = path.dirname(new_torrent)
         var basename = path.basename(new_torrent)
-        if(basename.length<25)
+        if(basename.length<15)
           secondaryMessage("Local File: "+basename);
         else
-          secondaryMessage("Local File: "+basename.substring(0,25)+" ...");
+          secondaryMessage("Local File: "+basename.substring(0,15)+"...");
 
         port++;
         connect().use(serveStatic(dirname)).listen(port);
@@ -241,12 +241,43 @@ function setUIspace(){
      document.getElementById('airplay').style.width = 50*ips.length+'px';
 }
 
+
+function toggleStop(n){
+    self.devices[n].player.stop(function(){
+      console.log('stoped!');
+      self.devices[n].playing = false
+    });
+}
+
+function togglePlay(n){
+    if(self.devices[n].playing==true){
+        self.devices[n].player.pause(function(){
+            console.log('paused!')
+            self.devices[n].playing = false
+            document.getElementById('playbutton'+n).classList.toggle('pausebutton');
+        })
+    }else{
+        self.devices[n].player.play(function(){
+            console.log('go to play!')
+            self.devices[n].playing = true
+            document.getElementById('playbutton'+n).classList.toggle('pausebutton');
+        })
+    }
+}
+
 function toggleDevice(n){
     self.devices[n].active = !self.devices[n].active
     document.getElementById('off'+n).classList.toggle('offlabel');
     document.getElementById('airplay-icon'+n).classList.toggle('deviceiconOff');
+}
+
+function toggleChromecastDevice(n){
+    self.devices[n].active = !self.devices[n].active
+    document.getElementById('off'+n).classList.toggle('offlabel');
+    //document.getElementById('airplay-icon'+n).classList.toggle('deviceiconOff');
 
 }
+
 
 function addDeviceElement(label){
      document.getElementById('dropmessage').style.height = '100px';
@@ -256,7 +287,7 @@ function addDeviceElement(label){
 
 function addChromecastDeviceElement(label){
      document.getElementById('dropmessage').style.height = '100px';
-     var htmlDevice = ' <div  class="device"> <div class="chromecontrols"> <div class="controlbutton" onclick="togglePlay('+(ips.length-1)+');"><img class="playbutton"/></div> <div class="controlbutton" onclick="toggleStop('+(ips.length-1)+');"><img class="stopbutton"/></div> </div><img id="airplay-icon'+(ips.length-1)+'" class="chromeicon"/> <p style="margin-top:-3px;">'+label+'</p> <div onclick="toggleDevice('+(ips.length-1)+');"><p id="off'+(ips.length-1)+'" class="" style="margin-top:-68px;margin-left:-8px;" class="offlabel">OFF</p> </div></div> </div>'
+     var htmlDevice = ' <div  class="device" style="margin-top:22px;"> <div class="chromecontrols"> <div id="playbutton'+(ips.length-1)+'" class="controlbutton" onclick="togglePlay('+(ips.length-1)+');"><img class="playbutton"/></div> <div class="controlbutton" onclick="toggleStop('+(ips.length-1)+');"><img class="stopbutton"/></div> </div><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" class="chromeicon"/> <p style="margin-top:-3px;">'+label+'</p> <div onclick="toggleChromecastDevice('+(ips.length-1)+');"><p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-36px;margin-left:-8px;" >OFF</p> </div></div> </div>'
 
      document.getElementById('airplay').innerHTML += htmlDevice
      setUIspace()
