@@ -21,6 +21,7 @@
 body{
     font-family: 'Open Sans Semibold';
     background: linear-gradient(rgba(1,1,1,0.3), rgba(1,1,1,0.3), rgba(0,0,0,0));
+    background: white;
     -webkit-user-select: none;
     height: 260px;
 }
@@ -137,13 +138,11 @@ body div{
 }
 
 .chromeicon {
-   content:url("./chromelogo.png");
+   content:url("./ChromecastSmall.png");
 }
 
 .playbutton {
-    margin-top: -20px;
-   content:url("./play.png");
-    margin-right:9px;
+    content:url("./play.png");
     cursor:pointer;
 }
 
@@ -163,6 +162,11 @@ body div{
 .deviceiconOff {
     
     content:url("./AirplaySmallOff.png");
+}
+
+.ChromedeviceiconOff {
+    
+    content:url("./ChromecastSmallOff.png");
 }
 
 .controlbutton {
@@ -211,7 +215,7 @@ body div{
 }
 
 #magnet {
-    height:100px;
+    height:50px;
 }
 
 #processing {

@@ -9,7 +9,7 @@ var parseBuildPlatforms = function(argumentPlatform) {
 	inputPlatforms = inputPlatforms.replace(/;ia|;x|;arm/, "");
 
 	var buildAll = /^all$/.test(inputPlatforms);
-	var buildAll = true 
+	//var buildAll = true
 
 	var buildPlatforms = {
 		mac: /mac/.test(inputPlatforms) || buildAll,
@@ -39,7 +39,7 @@ module.exports = function(grunt) {
 		'exec:createDmg', // mac
 		'exec:createWinInstall',
 		'compress' // win & linux
-	]);	
+	]);
 
 	grunt.registerTask('start', function(){
 		var start = parseBuildPlatforms();
@@ -64,19 +64,19 @@ module.exports = function(grunt) {
 				keep_nw: true,
 				embed_nw: false,
 				mac_icns: './src/app/images/nw.icns', // Path to the Mac icon file
-				zip: buildPlatforms.win, // Zip nw for mac in windows. Prevent path too long if build all is used.
+				zip: false, // Zip nw for mac in windows. Prevent path too long if build all is used.
 				mac: buildPlatforms.mac,
 				win: buildPlatforms.win,
 				linux32: buildPlatforms.linux32,
 				linux64: buildPlatforms.linux64,
 				download_url: 'http://cdn.popcorntime.io/nw/'
 			},
-			src: ['./src/**', '!./src/app/styl/**', 
-				'./node_modules/**', '!./node_modules/bower/**', '!./node_modules/*grunt*/**', '!./node_modules/stylus/**', 
-				'!./**/test*/**', '!./**/doc*/**', '!./**/example*/**', '!./**/demo*/**', '!./**/bin/**', '!./**/build/**', '!./**/.*/**', 
+			src: ['./src/**', '!./src/app/styl/**',
+				'./node_modules/**', '!./node_modules/bower/**', '!./node_modules/*grunt*/**', '!./node_modules/stylus/**',
+				'!./**/test*/**', '!./**/doc*/**', '!./**/example*/**', '!./**/demo*/**', '!./**/bin/**', '!./**/build/**', '!./**/.*/**',
 				'./package.json', './README.md', './LICENSE.txt' ]
 		},
-		
+
 		exec: {
 			win: {
 				cmd: '"build/cache/win/<%= nodewebkit.options.version %>/nw.exe" .'
@@ -143,13 +143,13 @@ module.exports = function(grunt) {
 				cwd: 'dist/windows',
 				src: 'TorrenTVSetup.exe',
 				dest: ''
-			}			
+			}
 		},
 
 		clean: {
 			releases: ['build/releases/TorrenTV/**']
 		},
-		
+
 		watch: {
 			options: {
 				dateFormat: function(time) {
