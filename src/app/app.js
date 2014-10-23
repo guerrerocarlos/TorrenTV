@@ -45,7 +45,7 @@ if(!isMac){
 
 //Local File Streamming
 var path = require('path')
-var port = 5555
+var port = 8010
 var connect = require('connect');
 var address = require('network-address');
 var serveStatic = require('serve-static');
@@ -162,14 +162,14 @@ doc.ondrop2 = function(event){
 
 }
 
-function playInDevices(resource){
+function playInDevices(resource, chromecast_resource){
         self.devices.forEach(function(dev){
+          var sending_resource = resource
           if(dev.active){
             showMessage("Streaming")
             if(dev.chromecast && subtitlesDropped){
-                console.log("creating new resource for subtitles to chromecast")
-                resource = {
-                    url : resource,
+                sending_resource = {
+                    url : chromecast_resource,
                     subtitles : [
                         {
                             language : 'en-US',
@@ -179,8 +179,8 @@ function playInDevices(resource){
                     ]
                 }
             }
-            console.log(resource)
-            dev.play(resource, 0, function() {
+            console.log("playInDevices: "+sending_resource)
+            dev.play(sending_resource, 0, function() {
               self.playingResource = resource
               console.log(">>> Playing in device: "+resource)
               showMessage("Streaming")
@@ -282,20 +282,21 @@ doc.ondrop = function (event) {
         else
           secondaryMessage("Local File: "+basename.substring(0,15)+"...");
 
-        port++;
         var app = connect()
         //app.use(allowCrossDomain)
         //app.use(serveStatic(dirname)).listen(port);
         if(subtitlesDropped == false){
+            port++;
             console.log("creating new CORS server...")
-            //app.use(serveStatic(dirname)).listen(port);
+            app.use(serveStatic(dirname)).listen(port);
             scfs.start(new_torrent, function(){console.log("server restarted.")})
         }
 
-        var resource = 'http://'+address()+':'+9999+'/'+escaped_str.escape(basename)
+        var chromecast_resource = 'http://'+address()+':'+9900+'/'+escaped_str.escape(basename)
+        var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
 
         console.log(resource)
-        playInDevices(resource)
+        playInDevices(resource, chromecast_resource)
 
       }else{
         secondaryMessage("Invalid Filetype")
@@ -607,7 +608,7 @@ var gotTorrent = function (this_torrent){
       console.log('tryToPlay')
       if(self.devices){
         console.log(self.devices)
-        playInDevices(href)
+        playInDevices(href, href)
         /*
         self.devices.forEach(function(dev){
           if(dev.active){
