@@ -146,6 +146,7 @@ var ips = []
 var dirname_prev = ""
 var basename_prev = ""
 var subtitles_resource = ""
+var torrenting = false
 
 var doc = document.documentElement;
 doc.ondragover = function () { this.className = 'hover'; return false; };
@@ -283,8 +284,7 @@ doc.ondrop = function (event) {
           secondaryMessage("Local File: "+basename.substring(0,15)+"...");
 
         var app = connect()
-        //app.use(allowCrossDomain)
-        //app.use(serveStatic(dirname)).listen(port);
+
         if(subtitlesDropped == false){
             port++;
             console.log("creating new CORS server...")
@@ -292,11 +292,14 @@ doc.ondrop = function (event) {
             scfs.start(new_torrent, function(){console.log("server restarted.")})
         }
 
-        var chromecast_resource = 'http://'+address()+':'+9900+'/'+escaped_str.escape(basename)
-        var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
-
-        console.log(resource)
-        playInDevices(resource, chromecast_resource)
+        if(torrenting==true){
+            playInDevices(global_href, global_href)
+        }else{
+            var chromecast_resource = 'http://'+address()+':'+9900+'/'+escaped_str.escape(basename)
+            var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
+            console.log(resource)
+            playInDevices(resource, chromecast_resource)
+        }
 
       }else{
         secondaryMessage("Invalid Filetype")
@@ -436,7 +439,6 @@ function addChromecastDeviceElement(label){
 }
 
 chromecaster.on( 'deviceOn', function( device ) {
-   console.log(device)
    if(ips.indexOf(device.config.addresses[0])<0){
      ips.push(device.config.addresses[0])
      var name = device.config.name.substring(0,11)+ (device.config.name.length > 11 ? "..." : "")
@@ -471,7 +473,6 @@ chromecaster.on( 'deviceOn', function( device ) {
 browser.on( 'deviceOn', function( device ) {
    if(ips.indexOf(device.info[0])<0){
      ips.push(device.info[0])
-     console.log(ips)
      var name = device.name.substring(0,7)+ (device.name.length > 7 ? "..." : "")
      //var name = device.name
      addDeviceElement(name)
@@ -606,24 +607,11 @@ var gotTorrent = function (this_torrent){
 
     var tryToPlay = function(){
       console.log('tryToPlay')
+      torrenting = true
       if(self.devices){
         console.log(self.devices)
         playInDevices(href, href)
-        /*
-        self.devices.forEach(function(dev){
-          if(dev.active){
-            showMessage("Streaming")
-            dev.play(href, 0, function() {
-              console.log(">>> Playing in devices: "+href)
-              showMessage("Streaming")
-              if(dev.togglePlayIcon){
-                console.log("Toggling play icon")
-                dev.togglePlayIcon()
-              }
-            });
-          }
-        });
-        */
+
       }
     };
 
