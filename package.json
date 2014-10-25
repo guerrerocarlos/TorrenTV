@@ -43,10 +43,10 @@
     "title": "TorrenTV",
     "icon": "src/app/images/icon.png",
     "frame": true,
-    "resizable": true,
+    "resizable": false,
     "show": true,
     "fullscreen": false,
-    "toolbar": true,
+    "toolbar": false,
     "width": 300,
     "always-on-top": true,
     "height": 300

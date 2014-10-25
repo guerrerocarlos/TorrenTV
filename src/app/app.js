@@ -382,6 +382,13 @@ function toggleStop(n){
 function forward30(n){
     self.devices[n].deltaSeek(30, function(time, status){
       console.log('Forwarded 30secs!'+status)
+      if(self.devices[n].playing == true){
+              console.log(status)
+              console.log('paused!')
+              self.devices[n].stopped = false
+              self.devices[n].togglePlayIcon()
+      }
+
     })
 
 }
@@ -390,6 +397,12 @@ function rewind30(n){
 
     self.devices[n].deltaSeek(-30, function(time){
       console.log('Rewinded 30secs!'+time)
+      if(self.devices[n].playing == true){
+              console.log(status)
+              console.log('paused!')
+              self.devices[n].stopped = false
+              self.devices[n].togglePlayIcon()
+      }
     })
 
 }
@@ -468,7 +481,7 @@ function addChromecastDeviceElement(label){
      document.getElementById('dropmessage').style.height = '100px';
      //var htmlDevice = ' <div  class="device" style="margin-top:22px;"> <div class="chromecontrols"> <div  onclick="togglePlay('+(ips.length-1)+');"><img id="playbutton'+(ips.length-1)+'" class="controlbutton"  class="playbutton"/></div> <div id="stopbutton'+(ips.length-1)+'"class="controlbutton hidden" onclick="toggleStop('+(ips.length-1)+');"><img class="stopbutton"/></div> </div><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" class="chromeicon"/> <p style="margin-top:-3px;">'+label+'</p> <div onclick="toggleChromecastDevice('+(ips.length-1)+');"><p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-36px;margin-left:-8px;" >OFF</p> </div></div> </div>'
      //document.getElementById('airplay').innerHTML += htmlDevice
-     document.getElementById('airplay').innerHTML += '<div  class="device"><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" style="margin-left:-8px;" class="chromeicon ChromedeviceiconOff"/> <p style="margin-top:-10px;">'+label+'</p> <p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-60px;">OFF</p>'+
+     document.getElementById('airplay').innerHTML += '<div  class="device"><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" style="margin-left:-4px;" class="chromeicon ChromedeviceiconOff"/> <p style="margin-top:-10px;">'+label+'</p> <p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-60px;">OFF</p>'+
          '<div>'+
          //'<img style="float:left; margin-top:34px; margin-left:0px;margin-right:0px;" class="rewindbutton hidden " id="rewindbutton'+(ips.length-1)+'"  />'+
          '<img style="float:left; margin-top:34px; margin-left:0px;margin-right:0px;" class="rewindbutton hidden " id="rewindbutton'+(ips.length-1)+'"  onclick="rewind30('+(ips.length-1)+');"/>'+
@@ -565,8 +578,8 @@ var gotTorrent = function (this_torrent){
    showMessage("Processing Torrent")
 
    if(!loading){
-     document.getElementById('arrow').classList.toggle('visible');
-     document.getElementById('arrow').classList.toggle('hidden');
+     document.getElementById('topimages').classList.toggle('visible');
+     document.getElementById('topimages').classList.toggle('hidden');
      document.getElementById('processing').classList.toggle('processing-icon');
    }
    loading = true

@@ -20,9 +20,8 @@
 
 body{
     font-family: 'Open Sans Semibold';
-    background: linear-gradient(rgba(1,1,1,0.2), rgba(1,1,1,0.2), rgba(0,0,0,0));
-    -webkit-user-select: none;
-    height: 260px;
+    background-color: white;
+    height: 275px;
 }
 body div{
 
@@ -35,9 +34,9 @@ body div{
 
 #top-message{
     text-align:center;
-    color: rgba(1,1,1,0.25);
+    color: rgba(1,1,1,0.45);
     height: 20px;
-    /*text-shadow: 0 1px 2px rgba(1,1,1,0.15);*/
+    margin-top:25px;
 }
 
 #info-message{
@@ -55,10 +54,11 @@ body div{
     font-size: 0.8em;
 }
 #dropmessage{
-    width:200px;
+    width:265px;
     height:200px;
     position:fixed;
     z-index: 2;
+    margin-top: 25px;
 }
 
 #droparea{
@@ -66,25 +66,22 @@ body div{
 }
 
 #droplogo{
-    height: 200px;
-    width: 200px;
+    height: 260px;
+    width: 260px;
     /*box-shadow:  0px 0px 12px grey;*/
-    border-radius: 2em;
+    border-radius: 0.7em;
     margin: 0 auto;
-    margin-top: 30px;
+    margin-top: 17px;
     /*margin-bottom: 30px;*/
-    border: 6px dashed rgba(1,1,1,0.15);   
-}
-
-#droplogo:hover {
-    border-color: rgba(1,1,1,0.35);
+    border: 3px dashed rgba(1,1,1,0.15);   
+    background-color: #f5f5f5;
 }
 
 .error {
     color: red;
 }
 
-#arrow{
+#arroww{
     /*position: absolute;*/
     margin-top:20px;
     margin-left:75px;
@@ -93,7 +90,7 @@ body div{
 }
 
 
-#arrow:before{
+#arroww:before{
     content:"";
     position: absolute;
     margin-top:50px;
@@ -104,7 +101,7 @@ body div{
 }
 
 
-#arrow:after{
+#arroww:after{
     content:"";
     position: absolute;
     margin-top:50px;
@@ -192,6 +189,15 @@ body div{
     z-index: 3;
 }
 
+#topimages {
+    background: url(logostop.png) no-repeat;
+    margin-top: 25px;
+    margin-bottom: -25px;
+    height: 100px;
+    margin-left: 20px;
+}
+
+
 #airplay img{
 
     clear: both;
@@ -215,7 +221,6 @@ body div{
 }
 
 .visible{
-    background-color: rgba(1,1,1,0.15);
 }
 
 .hidden {
@@ -226,9 +231,6 @@ body div{
     height:100px;
 }
 
-#magnet {
-    height:50px;
-}
 
 #processing {
     height: 32px;
