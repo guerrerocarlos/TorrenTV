@@ -20,7 +20,7 @@
 
 body{
     font-family: 'Open Sans Semibold';
-    background: linear-gradient(rgba(1,1,1,0.3), rgba(1,1,1,0.3), rgba(0,0,0,0));
+    background: linear-gradient(rgba(1,1,1,0.2), rgba(1,1,1,0.2), rgba(0,0,0,0));
     -webkit-user-select: none;
     height: 260px;
 }
@@ -144,6 +144,19 @@ body div{
     content:url("./play.png");
     cursor:pointer;
 }
+
+.forwardbutton {
+    content:url("./forward.png");
+    cursor:pointer;
+}
+
+
+.rewindbutton {
+    content:url("./rewind.png");
+    cursor:pointer;
+}
+
+
 
 .stopbutton {
     margin-top: -20px;

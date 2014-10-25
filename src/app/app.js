@@ -197,6 +197,17 @@ function playInDevices(resource, chromecast_resource){
                 dev.stopped = false
                 dev.streaming = true
                 dev.loadingPlayer = false
+                dev.startedTime = process.hrtime()[0]
+                console.log("Started time: "+dev.startedTime)
+
+                //setTimeout(function(){
+                //    console.log('preForwarded automatically 30secs!')
+                //    self.devices[0].player.seek(40,function(time){
+                //          console.log('Forwarded automatically 30secs!'+time)
+                //    })
+                //}, 10000);
+
+
               }
             });
           }
@@ -368,6 +379,36 @@ function toggleStop(n){
   }
 }
 
+function forward30(n){
+
+    console.log("going from started time:"+self.devices[n].startedTime)
+    self.devices[n].timePosition += process.hrtime()[0] - self.devices[n].startedTime
+    var newCurrentTime = self.devices[n].timePosition + 30
+
+    console.log("trying to forward to "+newCurrentTime)
+    self.devices[n].player.seek(newCurrentTime, function(time){
+      console.log('Forwarded 30secs!'+time)
+      self.devices[n].startedTime = process.hrtime()[0];
+      self.devices[n].timePosition = newCurrentTime
+    })
+}
+
+function rewind30(n){
+
+    self.devices[n].timePosition += process.hrtime()[0] - self.devices[n].startedTime
+    var newCurrentTime = self.devices[n].timePosition - 30
+
+    if(newCurrentTime < 0){
+        newCurrentTime = 0
+    }
+
+    self.devices[n].player.seek(newCurrentTime, function(time){
+      console.log('Rewinded 30secs!'+time)
+        self.devices[n].startedTime = process.hrtime()[0];
+        self.devices[n].timePosition = newCurrentTime
+    })
+}
+
 function togglePlay(n){
     if(self.devices[n].streaming == true){
       if(self.devices[n].playing == true){
@@ -434,8 +475,15 @@ function addChromecastDeviceElement(label){
      document.getElementById('dropmessage').style.height = '100px';
      //var htmlDevice = ' <div  class="device" style="margin-top:22px;"> <div class="chromecontrols"> <div  onclick="togglePlay('+(ips.length-1)+');"><img id="playbutton'+(ips.length-1)+'" class="controlbutton"  class="playbutton"/></div> <div id="stopbutton'+(ips.length-1)+'"class="controlbutton hidden" onclick="toggleStop('+(ips.length-1)+');"><img class="stopbutton"/></div> </div><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" class="chromeicon"/> <p style="margin-top:-3px;">'+label+'</p> <div onclick="toggleChromecastDevice('+(ips.length-1)+');"><p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-36px;margin-left:-8px;" >OFF</p> </div></div> </div>'
      //document.getElementById('airplay').innerHTML += htmlDevice
-     document.getElementById('airplay').innerHTML += '<div  class="device"><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" class="chromeicon ChromedeviceiconOff"/> <p style="margin-top:-10px;">'+label+'</p> <p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-60px;">OFF</p><div><img style="float:left; margin-top:34px; margin-left:18px;" class="playbutton hidden pausebutton" id="playbutton'+(ips.length-1)+'"  onclick="togglePlay('+(ips.length-1)+');"/></div> </div>'
+     document.getElementById('airplay').innerHTML += '<div  class="device"><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" style="margin-left:-8px;" class="chromeicon ChromedeviceiconOff"/> <p style="margin-top:-10px;">'+label+'</p> <p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-60px;">OFF</p>'+
+         '<div>'+
+         '<img style="float:left; margin-top:34px; margin-left:0px;margin-right:0px;" class="rewindbutton hidden " id="rewindbutton'+(ips.length-1)+'"  onclick="rewind30('+(ips.length-1)+');"/>'+
+         '<img style="float:left; margin-top:-17px; margin-left:18px;" class="playbutton hidden pausebutton" id="playbutton'+(ips.length-1)+'"  onclick="togglePlay('+(ips.length-1)+');"/>'+
+         '<img style="float:left; margin-top:-17px; margin-left:29px; padding-left:7px;" class="forwardbutton hidden " id="forwardbutton'+(ips.length-1)+'"  onclick="forward30('+(ips.length-1)+');"/>'+
+         '</div> </div>'
      setUIspace()
+
+
 }
 
 chromecaster.on( 'deviceOn', function( device ) {
@@ -457,7 +505,9 @@ chromecaster.on( 'deviceOn', function( device ) {
          //device.playerButtonHtml.toggle('pausebutton');
      }
      device.togglePlayControls = function(){
+          document.getElementById('rewindbutton'+this.myNumberIs).classList.toggle('hidden');
           document.getElementById('playbutton'+this.myNumberIs).classList.toggle('hidden');
+          document.getElementById('forwardbutton'+this.myNumberIs).classList.toggle('hidden');
      }
      device.on('connected', function(){
         this.active       = true
