@@ -380,39 +380,25 @@ function toggleStop(n){
 }
 
 function forward30(n){
-
-    console.log("going from started time:"+self.devices[n].startedTime)
-    self.devices[n].timePosition += process.hrtime()[0] - self.devices[n].startedTime
-    var newCurrentTime = self.devices[n].timePosition + 30
-
-    console.log("trying to forward to "+newCurrentTime)
-    self.devices[n].player.seek(newCurrentTime, function(time){
-      console.log('Forwarded 30secs!'+time)
-      self.devices[n].startedTime = process.hrtime()[0];
-      self.devices[n].timePosition = newCurrentTime
+    self.devices[n].deltaSeek(30, function(time, status){
+      console.log('Forwarded 30secs!'+status)
     })
+
 }
 
 function rewind30(n){
 
-    self.devices[n].timePosition += process.hrtime()[0] - self.devices[n].startedTime
-    var newCurrentTime = self.devices[n].timePosition - 30
-
-    if(newCurrentTime < 0){
-        newCurrentTime = 0
-    }
-
-    self.devices[n].player.seek(newCurrentTime, function(time){
+    self.devices[n].deltaSeek(-30, function(time){
       console.log('Rewinded 30secs!'+time)
-        self.devices[n].startedTime = process.hrtime()[0];
-        self.devices[n].timePosition = newCurrentTime
     })
+
 }
 
 function togglePlay(n){
     if(self.devices[n].streaming == true){
       if(self.devices[n].playing == true){
-          self.devices[n].player.pause(function(){
+          self.devices[n].pause(function(err, status){
+              console.log(status)
               console.log('paused!')
               self.devices[n].stopped = false
               self.devices[n].togglePlayIcon()
@@ -423,7 +409,8 @@ function togglePlay(n){
             console.log('seems stopped')
             if(self.devices[n].loadingPlayer != true){
                 self.devices[n].loadingPlayer = true
-                self.devices[n].play(this.playingResource,0,function(){
+                self.devices[n].play(this.playingResource,0,function(err, status){
+                    console.log(status)
                     console.log('telling to play from start again')
                     if(devices[n].togglePlayIcon){
                       console.log("Toggling play icon")
@@ -435,10 +422,16 @@ function togglePlay(n){
                 })
             }
           }else{
-            self.devices[n].player.play(function(){
+            self.devices[n].unpause(function(err, status){
                 console.log('just go to play!')
+                console.log(status)
+
                 self.devices[n].stopped = false
                 self.devices[n].togglePlayIcon()
+
+                //self.timePosition = options['currentTime'];
+                //self.startedTime = process.hrtime()[0];
+
             })
          }
       }
@@ -477,10 +470,14 @@ function addChromecastDeviceElement(label){
      //document.getElementById('airplay').innerHTML += htmlDevice
      document.getElementById('airplay').innerHTML += '<div  class="device"><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" style="margin-left:-8px;" class="chromeicon ChromedeviceiconOff"/> <p style="margin-top:-10px;">'+label+'</p> <p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-60px;">OFF</p>'+
          '<div>'+
+         //'<img style="float:left; margin-top:34px; margin-left:0px;margin-right:0px;" class="rewindbutton hidden " id="rewindbutton'+(ips.length-1)+'"  />'+
          '<img style="float:left; margin-top:34px; margin-left:0px;margin-right:0px;" class="rewindbutton hidden " id="rewindbutton'+(ips.length-1)+'"  onclick="rewind30('+(ips.length-1)+');"/>'+
          '<img style="float:left; margin-top:-17px; margin-left:18px;" class="playbutton hidden pausebutton" id="playbutton'+(ips.length-1)+'"  onclick="togglePlay('+(ips.length-1)+');"/>'+
          '<img style="float:left; margin-top:-17px; margin-left:29px; padding-left:7px;" class="forwardbutton hidden " id="forwardbutton'+(ips.length-1)+'"  onclick="forward30('+(ips.length-1)+');"/>'+
          '</div> </div>'
+
+
+     document.getElementById('rewindbutton'+(ips.length-1)).classList.toggle('visible').onclick = rewind30
      setUIspace()
 
 
