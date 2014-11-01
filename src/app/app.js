@@ -36,7 +36,7 @@ updater.on("error", function(msj){
 var chromecaster = new chromecastjs.Browser()
 
 var isMac = process.platform.indexOf('dar')>-1 || process.platform.indexOf('linux')>-1
-var global_href = "192.168.0.101:8000"
+var global_href = "0.0.0.0:8000"
 
 //emitter.resizeTo(300, 320)
 if(!isMac){
