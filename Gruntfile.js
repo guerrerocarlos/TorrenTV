@@ -9,7 +9,6 @@ var parseBuildPlatforms = function(argumentPlatform) {
 	inputPlatforms = inputPlatforms.replace(/;ia|;x|;arm/, "");
 
 	var buildAll = /^all$/.test(inputPlatforms);
-	//var buildAll = true
 
 	var buildPlatforms = {
 		mac: /mac/.test(inputPlatforms) || buildAll,
