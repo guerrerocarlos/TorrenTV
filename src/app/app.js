@@ -1,5 +1,5 @@
 var browser = require( 'airplay-js' ).createBrowser();
-var browserXbmc = require( 'airplay-xbmc' ).createBrowser();
+//var browserXbmc = require( 'airplay-xbmc' ).createBrowser();
 var readTorrent = require( 'read-torrent' );
 var numeral = require('numeral');
 var gui = require('nw.gui');
@@ -530,6 +530,7 @@ chromecaster.on( 'deviceOn', function( device ) {
    }
 });
 
+/*
 browser.on( 'deviceOn', function( device ) {
    if(ips.indexOf(device.info[0])<0){
      ips.push(device.info[0])
@@ -563,7 +564,7 @@ browserXbmc.on( 'deviceOn', function( device ) {
 });
 
 browserXbmc.start();
-
+*/
 
 function killIntervals(){
   //console.log("Killing all intervals");
