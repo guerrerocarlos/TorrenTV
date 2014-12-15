@@ -271,7 +271,11 @@ doc.ondrop = function (event) {
             if(new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('srt')>-1){
                 console.log("converting srt and then creating server for: "+new_torrent)
                 srt2vtt2(new_torrent, function(err, data){
-                    subtitles_server.start(data, function(){console.log("server restarted.")})
+                    try{
+                        subtitles_server.start(data, function(){console.log("server restarted.")})
+                    }catch(e){
+                        secondaryMessage("Invalid subtitle file")
+                    }
                 })
             }else{
                 console.log("creating server for: "+new_torrent)
@@ -300,13 +304,13 @@ doc.ondrop = function (event) {
             port++;
             console.log("creating new CORS server...")
             app.use(serveStatic(dirname)).listen(port);
-            scfs.start(new_torrent, function(){console.log("server restarted.")})
+            scfs.start(new_torrent, function(){console.log(">> Simple CORS server restarted.")})
         }
 
         if(torrenting==true){
             playInDevices(global_href, global_href)
         }else{
-            var chromecast_resource = 'http://'+address()+':'+9900+'/'+escaped_str.escape(basename)
+            var chromecast_resource = 'http://'+address()+':'+9999+'/'+escaped_str.escape(basename)
             var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
             console.log(resource)
             playInDevices(resource, chromecast_resource)
@@ -380,7 +384,7 @@ function toggleStop(n){
 }
 
 function forward30(n){
-    self.devices[n].deltaSeek(30, function(time, status){
+    self.devices[n].seek(30, function(time, status){
       console.log('Forwarded 30secs!'+status)
       if(self.devices[n].playing == true){
               console.log(status)
@@ -395,7 +399,7 @@ function forward30(n){
 
 function rewind30(n){
 
-    self.devices[n].deltaSeek(-30, function(time){
+    self.devices[n].seek(-30, function(time){
       console.log('Rewinded 30secs!'+time)
       if(self.devices[n].playing == true){
               console.log(status)
@@ -530,8 +534,8 @@ chromecaster.on( 'deviceOn', function( device ) {
    }
 });
 
-/*
 browser.on( 'deviceOn', function( device ) {
+    console.log(device)
    if(ips.indexOf(device.info[0])<0){
      ips.push(device.info[0])
      var name = device.name.substring(0,7)+ (device.name.length > 7 ? "..." : "")
@@ -548,6 +552,8 @@ browser.on( 'deviceOn', function( device ) {
 
 browser.start();
 
+
+/*
 browserXbmc.on( 'deviceOn', function( device ) {
    if(ips.indexOf(device.info[0])<0){
      ips.push(device.info[0])

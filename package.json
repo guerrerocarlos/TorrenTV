@@ -26,7 +26,7 @@
     "network-address": "0.0.4",
     "numeral": "^1.5.3",
     "nw-updater": "*",
-    "peerflix": "0.10.3",
+    "peerflix": "*",
     "q": "^1.0.1",
     "read-torrent": "~1.0.0",
     "request": "^2.42.0",
@@ -36,6 +36,7 @@
     "serve-static": "^1.3.2",
     "simple-cors-file-server": "*",
     "srt2vtt2": "0.0.2",
+    "subtitles-server": "0.0.3",
     "underscore": "^1.7.0",
     "util": "^0.10.3"
   },
@@ -46,7 +47,7 @@
     "resizable": true,
     "show": true,
     "fullscreen": false,
-    "toolbar": false,
+    "toolbar": true,
     "width": 300,
     "always-on-top": true,
     "height": 300
