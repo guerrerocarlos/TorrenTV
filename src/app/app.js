@@ -164,10 +164,10 @@ doc.ondrop2 = function(event){
 }
 
 function playInDevices(resource, chromecast_resource){
+        showMessage("Streaming")
         self.devices.forEach(function(dev){
           var sending_resource = resource
           if(dev.active){
-            showMessage("Streaming")
             if(dev.chromecast && subtitlesDropped){
                 sending_resource = {
                     url : chromecast_resource,
@@ -184,7 +184,6 @@ function playInDevices(resource, chromecast_resource){
             dev.play(sending_resource, 0, function() {
               self.playingResource = resource
               console.log(">>> Playing in device: "+resource)
-              showMessage("Streaming")
               if(dev.togglePlayIcon){
                 dev.togglePlayIcon()
                 if(dev.playing == false || dev.stopped == true){
@@ -548,9 +547,20 @@ browser.on( 'deviceOn', function( device ) {
      //console.log('tryToPlay')
      emitter.emit('wantToPlay');
   }
+    device.on('NoFFMPEG', function(){
+       showMessage("<a onclick='NoFFMPEGExplanation()' href='#'>FFMPEG not found :(</a>")
+    })
+
 });
 
-browser.start();
+function NoFFMPEGExplanation(){
+    gui.Shell.openExternal("http://torrentv.github.io/noffmpeg")
+}
+
+
+setInterval(function(){
+    browser.start();
+}, 5000)
 
 
 /*
@@ -659,7 +669,7 @@ var gotTorrent = function (this_torrent){
         movieNameToShow = movieName
     }
     if(movieHash.length>0 && isMac){
-      secondaryMessage("<a class='cursored' onclick='openInFinder(\'"+engine.path+"\'); '>"+movieNameToShow+" ["+bytes(filelength)+"] </a>");
+      secondaryMessage(movieNameToShow+" ["+bytes(filelength)+"]");
     }else{
       secondaryMessage(movieNameToShow+" ["+bytes(filelength)+"]");
     }
