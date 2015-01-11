@@ -557,10 +557,7 @@ function NoFFMPEGExplanation(){
     gui.Shell.openExternal("http://torrentv.github.io/noffmpeg")
 }
 
-
-setInterval(function(){
     browser.start();
-}, 5000)
 
 
 /*
