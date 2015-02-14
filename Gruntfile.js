@@ -58,17 +58,18 @@ module.exports = function(grunt) {
   grunt.initConfig({
 		nodewebkit: {
 			options: {
-				version: '0.9.2',
+				version: 'latest',
 				build_dir: './build', // Where the build version of my node-webkit app is saved
+				cacheDir: './build/cache',
 				keep_nw: true,
 				embed_nw: false,
 				mac_icns: './src/app/images/nw.icns', // Path to the Mac icon file
+				macPlist: './Info.plist',
 				zip: false, // Zip nw for mac in windows. Prevent path too long if build all is used.
 				mac: buildPlatforms.mac,
 				win: buildPlatforms.win,
 				linux32: buildPlatforms.linux32,
 				linux64: buildPlatforms.linux64,
-				download_url: 'http://cdn.popcorntime.io/nw/'
 			},
 			src: ['./src/**', '!./src/app/styl/**',
 				'./node_modules/**', '!./node_modules/bower/**', '!./node_modules/*grunt*/**', '!./node_modules/stylus/**',
