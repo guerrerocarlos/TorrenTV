@@ -18,7 +18,7 @@
     "airplay-js": "*",
     "airplay-xbmc": "^0.2.1",
     "async": "^0.9.0",
-    "chromecast-js": "*",
+    "chromecast-js": "git://github.com/yappco/chromecast-js.git#master",
     "connect": "^3.0.2",
     "connect-cors": "^0.5.6",
     "decompress": "^2.0.0",
