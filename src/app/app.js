@@ -97,10 +97,13 @@ var xmlRokuServer = function(){
     console.log('saying hola')
   })
 
-  server.listen(9010)
+  try{
+    server.listen(9010)
+  }catch(e){
+    console.log("Coulnd't start roku App service.")
+  }
 }
 
-xmlRokuServer()
 
 function processTorrent(new_torrent){
   readTorrent(new_torrent, function(err, torrent) {
@@ -185,10 +188,7 @@ function playInDevices(resource, chromecast_resource){
               self.playingResource = resource
               console.log(">>> Playing in device: "+resource)
               if(dev.togglePlayIcon){
-                dev.togglePlayIcon()
-                if(dev.playing == false || dev.stopped == true){
-                    dev.togglePlayIcon()
-                }
+                dev.togglePlayIcon('PLAYING')
                 if(dev.streaming == false){
                    dev.togglePlayControls()
                 }
@@ -368,7 +368,7 @@ function toggleStop(n){
         self.devices[n].player.stop(function(){
           console.log('stoped!');
           if(self.devices[n].playing==true){
-              self.devices[n].togglePlayIcon()
+              self.devices[n].togglePlayIcon('PAUSED')
           }
           if(self.devices[n].streaming==true){
               self.devices[n].togglePlayControls()
@@ -385,29 +385,16 @@ function toggleStop(n){
 function forward30(n){
     self.devices[n].seek(30, function(time, status){
       console.log('Forwarded 30secs!'+status)
-      if(self.devices[n].playing == true){
-              console.log(status)
-              console.log('paused!')
-              self.devices[n].stopped = false
-              self.devices[n].togglePlayIcon()
-      }
-
+      self.devices[n].togglePlayIcon('PAUSED')
     })
 
 }
 
 function rewind30(n){
-
     self.devices[n].seek(-30, function(time){
-      console.log('Rewinded 30secs!'+time)
-      if(self.devices[n].playing == true){
-              console.log(status)
-              console.log('paused!')
-              self.devices[n].stopped = false
-              self.devices[n].togglePlayIcon()
-      }
+      console.log('Rewinded 30secs!'+status)
+      self.devices[n].togglePlayIcon('PAUSED')
     })
-
 }
 
 function togglePlay(n){
@@ -416,12 +403,12 @@ function togglePlay(n){
     self.devices[n].getStatus(function(status){
         if(status['playerState'] === "PLAYING"){
             self.devices[n].pause(function(err, status){
-                self.devices[n].togglePlayIcon()
+                self.devices[n].togglePlayIcon('PLAYING')
             });
         }
         if(status['playerState'] === "PAUSED"){
             self.devices[n].unpause(function(err, status){
-                self.devices[n].togglePlayIcon()
+                self.devices[n].togglePlayIcon('PAUSED')
             });
         }
     })
@@ -469,11 +456,40 @@ function togglePlay(n){
   }
 }*/
 
+function ensureClass(id, cl){
+    classList = document.getElementById(id).classList;
+    exist = false
+    for(var key in classList){
+        console.log(classList[key])
+        if(classList[key] === cl)
+            exist = true
+    }
+    if(!exist){
+        document.getElementById(id).classList.toggle(cl);
+    }
+}
+
+function ensureNotClass(id, cl){
+    classList = document.getElementById(id).classList;
+    exist = false
+    for(var key in classList){
+        console.log(classList[key])
+        if(classList[key] === cl)
+            exist = true
+    }
+    if(exist){
+        document.getElementById(id).classList.toggle(cl);
+    }
+}
+
+
 function toggleDevice(n){
     self.devices[n].active = !self.devices[n].active
     if(self.devices[n].playing){
         self.devices[n].stop()
     }
+    console.log("toggling device "+n)
+    console.log(JSON.stringify(document.getElementById('off'+n).classList))
     document.getElementById('off'+n).classList.toggle('offlabel');
     document.getElementById('airplay-icon'+n).classList.toggle('deviceiconOff');
 }
@@ -527,9 +543,14 @@ chromecaster.on( 'deviceOn', function( device ) {
      device.playerButton = false
      device.stopped      = true
      device.chromecast   = true
-     device.togglePlayIcon = function(){
+     device.togglePlayIcon = function(status){
         this.playing = !this.playing
-        document.getElementById('playbutton'+this.myNumberIs).classList.toggle('pausebutton');
+        if(status=='PAUSED')
+            ensureClass('playbutton'+this.myNumberIs,'pausebutton')
+
+        if(status=='PLAYING')
+            ensureNotClass('playbutton'+this.myNumberIs,'pausebutton')
+        //document.getElementById('playbutton'+this.myNumberIs).classList.toggle('pausebutton');
          //device.playerButtonHtml.toggle('pausebutton');
      }
      device.togglePlayControls = function(){
@@ -710,3 +731,5 @@ var gotTorrent = function (this_torrent){
 
   });
 }
+
+xmlRokuServer()
