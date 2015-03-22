@@ -97,7 +97,7 @@ var xmlRokuServer = function(){
     console.log('saying hola')
   })
 
-  server.listen(9009)
+  server.listen(9010)
 }
 
 xmlRokuServer()
@@ -411,12 +411,30 @@ function rewind30(n){
 }
 
 function togglePlay(n){
+      console.log(self.devices[n].streaming)
+      console.log(self.devices[n].playing)
+    self.devices[n].getStatus(function(status){
+        if(status['playerState'] === "PLAYING"){
+            self.devices[n].pause(function(err, status){
+                self.devices[n].togglePlayIcon()
+            });
+        }
+        if(status['playerState'] === "PAUSED"){
+            self.devices[n].unpause(function(err, status){
+                self.devices[n].togglePlayIcon()
+            });
+        }
+    })
+}
+
+    /*
     if(self.devices[n].streaming == true){
       if(self.devices[n].playing == true){
           self.devices[n].pause(function(err, status){
               console.log(status)
               console.log('paused!')
               self.devices[n].stopped = false
+              self.devices[n].playing = false
               self.devices[n].togglePlayIcon()
           })
       }else{
@@ -441,18 +459,15 @@ function togglePlay(n){
             self.devices[n].unpause(function(err, status){
                 console.log('just go to play!')
                 console.log(status)
-
                 self.devices[n].stopped = false
                 self.devices[n].togglePlayIcon()
-
                 //self.timePosition = options['currentTime'];
                 //self.startedTime = process.hrtime()[0];
-
             })
          }
       }
   }
-}
+}*/
 
 function toggleDevice(n){
     self.devices[n].active = !self.devices[n].active
