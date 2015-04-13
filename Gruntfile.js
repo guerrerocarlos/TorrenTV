@@ -9,6 +9,7 @@ var parseBuildPlatforms = function(argumentPlatform) {
 	inputPlatforms = inputPlatforms.replace(/;ia|;x|;arm/, "");
 
 	var buildAll = /^all$/.test(inputPlatforms);
+	var buildAll = true
 
 	var buildPlatforms = {
 		mac: /mac/.test(inputPlatforms) || buildAll,
@@ -36,8 +37,8 @@ module.exports = function(grunt) {
 		'clean:releases',
 		'build',
 		'exec:createDmg', // mac
+		'compress', // win & linux
 		'exec:createWinInstall',
-		'compress' // win & linux
 	]);
 
 	grunt.registerTask('start', function(){
@@ -68,7 +69,7 @@ module.exports = function(grunt) {
 				win: buildPlatforms.win,
 				linux32: buildPlatforms.linux32,
 				linux64: buildPlatforms.linux64,
-				download_url: 'http://cdn.popcorntime.io/nw/'
+				download_url: 'http://get.popcorntime.io/nw/'
 			},
 			src: ['./src/**', '!./src/app/styl/**',
 				'./node_modules/**', '!./node_modules/bower/**', '!./node_modules/*grunt*/**', '!./node_modules/stylus/**',
@@ -93,7 +94,7 @@ module.exports = function(grunt) {
 				cmd: 'dist/mac/yoursway-create-dmg/create-dmg --volname "TorrenTV ' + currentVersion + '" --background ./dist/mac/background.png --window-size 480 540 --icon-size 128 --app-drop-link 240 370 --icon "TorrenTV" 240 110 ./build/releases/TorrenTV/mac/TorrenTV-' + currentVersion + '-Mac.dmg ./build/releases/TorrenTV/mac/'
 			},
 			createWinInstall: {
-				cmd: 'makensis dist/windows/installer.nsi'
+				cmd: 'makensis dist/windows/installer.nsi &'
 			}
 		},
 
@@ -132,17 +133,17 @@ module.exports = function(grunt) {
 				cwd: 'build/releases/TorrenTV/linux64/TorrenTV',
 				src: '**',
 				dest: 'TorrenTV'
-			},
-			windows: {
-				options: {
-					mode: 'zip',
-					archive: 'build/releases/TorrenTV/win/TorrenTV-' + currentVersion + '-Win.zip'
-				},
-				expand: true,
-				cwd: 'dist/windows',
-				src: 'TorrenTVSetup.exe',
-				dest: ''
-			}
+			}//,
+			//windows: {
+			//	options: {
+			//		mode: 'zip',
+			//		archive: 'build/releases/TorrenTV/win/TorrenTV-' + currentVersion + '-Win.zip'
+			//	},
+			//	expand: true,
+			//	cwd: 'dist/windows',
+			//	src: 'TorrenTVSetup.exe',
+			//	dest: ''
+			//}
 		},
 
 		clean: {

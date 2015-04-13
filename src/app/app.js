@@ -159,10 +159,9 @@ doc.ondrop2 = function(event){
   this.className = '';
 
 	readTorrent(event.dataTransfer.files[0].path,function(err, torrent){
+        console.log("Dropped: "+torrent);
 		gotTorrent(torrent)
 	});
-
-
 
 }
 
@@ -340,7 +339,8 @@ doc.ondrop = function (event) {
           secondaryMessage("Downloading .torrent file")
           processTorrent(magnet)
         }else{
-          if(self.device){
+          console.log(self.device.length)
+          if(self.device.length > 0){
             self.device.play(href, 0, function() {
               console.log(">>> Playing in AirPlay device: "+href)
               showMessage("URL sent")
