@@ -1,13 +1,35 @@
+process.on('uncaughtException', function(e){
+    console.log("uncauthg Exception happened...")
+    console.log(e)
+
+})
+
+var c = 0
+var count = function(){
+    console.log(c)
+    c++
+}
+
+count()
 var browser = require( 'airplay-js' ).createBrowser();
 //var browserXbmc = require( 'airplay-xbmc' ).createBrowser();
+count()
 var readTorrent = require( 'read-torrent' );
+count()
 var numeral = require('numeral');
+count()
 var gui = require('nw.gui');
+count()
 var emitter = gui.Window.get();
+count()
 var chromecastjs = require('chromecast-js')
+count()
 var subtitles_server = new (require("subtitles-server"))()
+count()
 var srt2vtt2 = require('srt2vtt2')
+count()
 var scfs = new (require("simple-cors-file-server"))()
+count()
 
 console.log(process.cwd())
 
@@ -18,7 +40,9 @@ var path = require("path")
 var execPath = path.dirname( process.execPath );
 console.log(execPath)
 
+count()
 
+/*
 var updater = require('nw-updater')({'channel':'beta', "currentVersion": currentVersion,'endpoint':'http://torrentv.github.io/update.json'})
 updater.update()
 
@@ -31,8 +55,9 @@ updater.on("installed", function(){
 updater.on("error", function(msj){
     console.log(msj)
 })
+*/
 
-
+count()
 var chromecaster = new chromecastjs.Browser()
 
 var isMac = process.platform.indexOf('dar')>-1 || process.platform.indexOf('linux')>-1
@@ -43,20 +68,24 @@ if(!isMac){
   emitter.resizeTo(300, 340)
 }
 
+count()
 //Local File Streamming
 var path = require('path')
 var port = 8010
 var connect = require('connect');
+count()
 var address = require('network-address');
 var serveStatic = require('serve-static');
 var escaped_str = require('querystring');
 var last_played = ''
 var peerflix = require('peerflix')
 
+count()
 //Downloading torrent from link
 var http = require('http');
 var fs = require('fs');
 
+count()
 var menu = new gui.Menu();
 //menu.removeAt(1);
 
@@ -116,14 +145,11 @@ function processTorrent(new_torrent){
     if(JSON.stringify(torrent.files).toLowerCase().indexOf('mkv')>-1){
       secondaryMessage("<div class='error'>MKV format not supported by AppleTV</div>");
       showMessage("Torrent contains .MKV Movie");
-      movieName = torrent.name
-      movieHash = torrent.infoHash
-      gotTorrent(torrent);
-    }else{
-      movieName = torrent.name
-      movieHash = torrent.infoHash
-      gotTorrent(torrent);
     }
+    movieName = torrent.name
+    movieHash = torrent.infoHash
+    gotTorrent(torrent);
+
   });
 }
 
@@ -195,17 +221,6 @@ function playInDevices(resource, chromecast_resource){
                 dev.stopped = false
                 dev.streaming = true
                 dev.loadingPlayer = false
-                dev.startedTime = process.hrtime()[0]
-                console.log("Started time: "+dev.startedTime)
-
-                //setTimeout(function(){
-                //    console.log('preForwarded automatically 30secs!')
-                //    self.devices[0].player.seek(40,function(time){
-                //          console.log('Forwarded automatically 30secs!'+time)
-                //    })
-                //}, 10000);
-
-
               }
             });
           }
@@ -223,6 +238,7 @@ doc.ondrop = function (event) {
   var new_torrent = ""
   secondaryMessage("")
 
+  console.log("magnet: "+magnet)
   if(!magnet.length>0 && event.dataTransfer.files.length >0){
     new_torrent = event.dataTransfer.files[0].path;
     //console.log(new_torrent)
@@ -265,6 +281,10 @@ doc.ondrop = function (event) {
             subtitlesDropped = true
             var dirname = dirname_prev
             var basename = basename_prev
+            console.log("dirname and basename:")
+            console.log(dirname)
+            console.log(basename)
+
             console.log(new_torrent)
             if(new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('srt')>-1){
                 console.log("converting srt and then creating server for: "+new_torrent)
@@ -306,11 +326,26 @@ doc.ondrop = function (event) {
         }
 
         if(torrenting==true){
+            console.log("global_href: "+global_href)
             playInDevices(global_href, global_href)
         }else{
+            console.log("playing not torrent")
             var chromecast_resource = 'http://'+address()+':'+9999+'/'+escaped_str.escape(basename)
             var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
             console.log(resource)
+            if(subtitlesDropped == true){
+                var resource_with_subtitles = {
+                    url : resource,
+                    file: dirname+"/"+basename,
+                    subtitles : [{
+                        language: 'en-US',
+                        url: subtitles_resource,
+                        name: 'English'
+                    }]
+                }
+                resource = resource_with_subtitles
+                console.log("New resource with subtitles: "+JSON.stringify(resource))
+            }
             playInDevices(resource, chromecast_resource)
         }
 
@@ -335,21 +370,18 @@ doc.ondrop = function (event) {
         //it's a normal http link
         magnet = magnet.toLowerCase().split("?")[0]
         secondaryMessage(magnet)
-        if(magnet.substring(magnet.length-7,magnet.length).indexOf('torrent')>-1){
+        //if(magnet.substring(magnet.length-7,magnet.length).indexOf('torrent')>-1){
           secondaryMessage("Downloading .torrent file")
           processTorrent(magnet)
-        }else{
-          console.log(self.device.length)
-          if(self.device.length > 0){
-            self.device.play(href, 0, function() {
-              console.log(">>> Playing in AirPlay device: "+href)
-              showMessage("URL sent")
-            });
-          }else{
-            secondaryMessage("Not sent")
-            showMessage("Could not find any Device")
-          }
-        }
+        //}else{
+        //  console.log(self.devices.length)
+        //  if(self.devices.length > 0){
+        //    playInDevices(href,href)
+        //  }else{
+        //    secondaryMessage("Not sent")
+        //    showMessage("Could not find any Device")
+        //  }
+        //}
       }
     }
   }
@@ -378,7 +410,6 @@ function toggleStop(n){
           self.devices[n].stopped   = true
         });
       }
-
   }
 }
 
@@ -460,7 +491,7 @@ function ensureClass(id, cl){
     classList = document.getElementById(id).classList;
     exist = false
     for(var key in classList){
-        console.log(classList[key])
+        //console.log(classList[key])
         if(classList[key] === cl)
             exist = true
     }
@@ -473,7 +504,7 @@ function ensureNotClass(id, cl){
     classList = document.getElementById(id).classList;
     exist = false
     for(var key in classList){
-        console.log(classList[key])
+        //console.log(classList[key])
         if(classList[key] === cl)
             exist = true
     }
@@ -481,7 +512,6 @@ function ensureNotClass(id, cl){
         document.getElementById(id).classList.toggle(cl);
     }
 }
-
 
 function toggleDevice(n){
     self.devices[n].active = !self.devices[n].active
@@ -503,7 +533,6 @@ function toggleChromecastDevice(n){
     }
 
 }
-
 
 function addDeviceElement(label){
      document.getElementById('dropmessage').style.height = '100px';
@@ -582,18 +611,19 @@ browser.on( 'deviceOn', function( device ) {
      self.devices.push(device)
      //console.log('tryToPlay')
      emitter.emit('wantToPlay');
-  }
+    }
     device.on('NoFFMPEG', function(){
        showMessage("<a onclick='NoFFMPEGExplanation()' href='#'>FFMPEG not found :(</a>")
     })
-
 });
+
+
+browser.start();
 
 function NoFFMPEGExplanation(){
     gui.Shell.openExternal("http://torrentv.github.io/noffmpeg")
 }
 
-    browser.start();
 
 
 /*
