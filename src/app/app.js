@@ -311,6 +311,7 @@ doc.ondrop = function (event) {
             var chromecast_resource = 'http://'+address()+':'+9999+'/'+escaped_str.escape(basename)
             var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
             console.log(resource)
+            global_href = resource;
             playInDevices(resource, chromecast_resource)
         }
 
