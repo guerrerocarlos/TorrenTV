@@ -73,6 +73,7 @@ var xmlRokuServer = function(){
   server.listen(9009)
 }
 
+xmlRokuServer();
 
 
 function processTorrent(new_torrent){
@@ -546,5 +547,5 @@ var gotTorrent = function (this_torrent){
     emitter.emit('wantToPlay');
 
   });
-  xmlRokuServer();
+  
 }
