@@ -1,42 +1,15 @@
 var browser = require( 'airplay-js' ).createBrowser();
-//var browserXbmc = require( 'airplay-xbmc' ).createBrowser();
+var browserXbmc = require( 'airplay-xbmc' ).createBrowser();
 var readTorrent = require( 'read-torrent' );
 var numeral = require('numeral');
 var gui = require('nw.gui');
 var emitter = gui.Window.get();
 var chromecastjs = require('chromecast-js')
-var subtitles_server = new (require("subtitles-server"))()
-var srt2vtt2 = require('srt2vtt2')
-var scfs = new (require("simple-cors-file-server"))()
-
-console.log(process.cwd())
-
-console.log(gui)
-var currentVersion = gui.App.manifest.version
-
-var path = require("path")
-var execPath = path.dirname( process.execPath );
-console.log(execPath)
-
-
-var updater = require('nw-updater')({'channel':'beta', "currentVersion": currentVersion,'endpoint':'http://torrentv.github.io/update.json'})
-updater.update()
-
-updater.on("download", function(version){
-    console.log("OH YEAH! going to download version "+version)
-})
-updater.on("installed", function(){
-    console.log("SUCCCESSFULLY installed new version, please restart")
-})
-updater.on("error", function(msj){
-    console.log(msj)
-})
-
 
 var chromecaster = new chromecastjs.Browser()
 
 var isMac = process.platform.indexOf('dar')>-1 || process.platform.indexOf('linux')>-1
-var global_href = "0.0.0.0:8000"
+var global_href = "192.168.0.101:8000"
 
 //emitter.resizeTo(300, 320)
 if(!isMac){
@@ -45,7 +18,7 @@ if(!isMac){
 
 //Local File Streamming
 var path = require('path')
-var port = 8010
+var port = 4007
 var connect = require('connect');
 var address = require('network-address');
 var serveStatic = require('serve-static');
@@ -97,12 +70,10 @@ var xmlRokuServer = function(){
     console.log('saying hola')
   })
 
-  try{
-    server.listen(9010)
-  }catch(e){
-    console.log("Coulnd't start roku App service.")
-  }
+  server.listen(9009)
 }
+
+xmlRokuServer();
 
 
 function processTorrent(new_torrent){
@@ -144,12 +115,7 @@ var movieHash = ""
 var intervalArr = new Array();
 var loading = false;
 var loadingPlayer = false;
-var subtitlesDropped = false;
 var ips = []
-var dirname_prev = ""
-var basename_prev = ""
-var subtitles_resource = ""
-var torrenting = false
 
 var doc = document.documentElement;
 doc.ondragover = function () { this.className = 'hover'; return false; };
@@ -159,35 +125,26 @@ doc.ondrop2 = function(event){
   this.className = '';
 
 	readTorrent(event.dataTransfer.files[0].path,function(err, torrent){
-        console.log("Dropped: "+torrent);
 		gotTorrent(torrent)
 	});
 
+
+
 }
 
-function playInDevices(resource, chromecast_resource){
-        showMessage("Streaming")
+function playInDevices(resource){
         self.devices.forEach(function(dev){
-          var sending_resource = resource
           if(dev.active){
-            if(dev.chromecast && subtitlesDropped){
-                sending_resource = {
-                    url : chromecast_resource,
-                    subtitles : [
-                        {
-                            language : 'en-US',
-                            url : subtitles_resource,
-                            name : 'English'
-                        }
-                    ]
-                }
-            }
-            console.log("playInDevices: "+sending_resource)
-            dev.play(sending_resource, 0, function() {
+            showMessage("Streaming")
+            dev.play(resource, 0, function() {
               self.playingResource = resource
               console.log(">>> Playing in device: "+resource)
+              showMessage("Streaming")
               if(dev.togglePlayIcon){
-                dev.togglePlayIcon('PLAYING')
+                dev.togglePlayIcon()
+                if(dev.playing == false || dev.stopped == true){
+                    dev.togglePlayIcon()
+                }
                 if(dev.streaming == false){
                    dev.togglePlayControls()
                 }
@@ -195,17 +152,6 @@ function playInDevices(resource, chromecast_resource){
                 dev.stopped = false
                 dev.streaming = true
                 dev.loadingPlayer = false
-                dev.startedTime = process.hrtime()[0]
-                console.log("Started time: "+dev.startedTime)
-
-                //setTimeout(function(){
-                //    console.log('preForwarded automatically 30secs!')
-                //    self.devices[0].player.seek(40,function(time){
-                //          console.log('Forwarded automatically 30secs!'+time)
-                //    })
-                //}, 10000);
-
-
               }
             });
           }
@@ -246,73 +192,28 @@ doc.ondrop = function (event) {
     }else{
       //Not a torrent, could be a local Movie, also send
       if(new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mp4')>-1
-          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('m4v')>-1
           || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mov')>-1
-          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('jpg')>-1
           || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mkv')>-1
           || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('avi')>-1
           || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('m4a')>-1
           || new_torrent.toLowerCase().substring(new_torrent.length-4,new_torrent.length).indexOf('flac')>-1
-          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('srt')>-1
-          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('vtt')>-1
           || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('mp3')>-1){
         showMessage("Sending")
 
-        console.log("going to check about: "+new_torrent)
-        if(new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('srt')>-1
-          || new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('vtt')>-1
-          ){
-            subtitlesDropped = true
-            var dirname = dirname_prev
-            var basename = basename_prev
-            console.log(new_torrent)
-            if(new_torrent.toLowerCase().substring(new_torrent.length-3,new_torrent.length).indexOf('srt')>-1){
-                console.log("converting srt and then creating server for: "+new_torrent)
-                srt2vtt2(new_torrent, function(err, data){
-                    try{
-                        subtitles_server.start(data, function(){console.log("server restarted.")})
-                    }catch(e){
-                        secondaryMessage("Invalid subtitle file")
-                    }
-                })
-            }else{
-                console.log("creating server for: "+new_torrent)
-                subtitles_server.start({vtt: new_torrent, encoding: 'utf8'}, function(){console.log("server restarted.")})
-            }
-
-            subtitles_resource = 'http://'+address()+':8888/subtitles.vtt'
-            //subtitles_resource = 'http://carlosguerrero.com/captions_styled.vtt'
-        }else{
-            console.log("NOT SUBTITLE!!!")
-            subtitlesDropped = false
-            var dirname = path.dirname(new_torrent)
-            dirname_prev = path.dirname(new_torrent)
-            var basename = path.basename(new_torrent)
-            basename_prev = path.basename(new_torrent)
-        }
-
+        var dirname = path.dirname(new_torrent)
+        var basename = path.basename(new_torrent)
         if(basename.length<15)
           secondaryMessage("Local File: "+basename);
         else
           secondaryMessage("Local File: "+basename.substring(0,15)+"...");
 
-        var app = connect()
+        port++;
+        connect().use(serveStatic(dirname)).listen(port);
 
-        if(subtitlesDropped == false){
-            port++;
-            console.log("creating new CORS server...")
-            app.use(serveStatic(dirname)).listen(port);
-            scfs.start(new_torrent, function(){console.log(">> Simple CORS server restarted.")})
-        }
-
-        if(torrenting==true){
-            playInDevices(global_href, global_href)
-        }else{
-            var chromecast_resource = 'http://'+address()+':'+9999+'/'+escaped_str.escape(basename)
-            var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
-            console.log(resource)
-            playInDevices(resource, chromecast_resource)
-        }
+        var resource = 'http://'+address()+':'+port+'/'+escaped_str.escape(basename)
+	global_href = resource;
+        console.log(resource)
+        playInDevices(resource)
 
       }else{
         secondaryMessage("Invalid Filetype")
@@ -339,8 +240,7 @@ doc.ondrop = function (event) {
           secondaryMessage("Downloading .torrent file")
           processTorrent(magnet)
         }else{
-          console.log(self.device.length)
-          if(self.device.length > 0){
+          if(self.device){
             self.device.play(href, 0, function() {
               console.log(">>> Playing in AirPlay device: "+href)
               showMessage("URL sent")
@@ -368,13 +268,13 @@ function toggleStop(n){
         self.devices[n].player.stop(function(){
           console.log('stoped!');
           if(self.devices[n].playing==true){
-              self.devices[n].togglePlayIcon('PAUSED')
+              self.devices[n].togglePlayIcon()
           }
           if(self.devices[n].streaming==true){
               self.devices[n].togglePlayControls()
           }
           self.devices[n].playing   = false
-          self.devices[n].streaming = false
+          self.devices[n].streaming = false 
           self.devices[n].stopped   = true
         });
       }
@@ -382,46 +282,12 @@ function toggleStop(n){
   }
 }
 
-function forward30(n){
-    self.devices[n].seek(30, function(time, status){
-      console.log('Forwarded 30secs!'+status)
-      self.devices[n].togglePlayIcon('PAUSED')
-    })
-
-}
-
-function rewind30(n){
-    self.devices[n].seek(-30, function(time){
-      console.log('Rewinded 30secs!'+status)
-      self.devices[n].togglePlayIcon('PAUSED')
-    })
-}
-
 function togglePlay(n){
-      console.log(self.devices[n].streaming)
-      console.log(self.devices[n].playing)
-    self.devices[n].getStatus(function(status){
-        if(status['playerState'] === "PLAYING"){
-            self.devices[n].pause(function(err, status){
-                self.devices[n].togglePlayIcon('PLAYING')
-            });
-        }
-        if(status['playerState'] === "PAUSED"){
-            self.devices[n].unpause(function(err, status){
-                self.devices[n].togglePlayIcon('PAUSED')
-            });
-        }
-    })
-}
-
-    /*
     if(self.devices[n].streaming == true){
       if(self.devices[n].playing == true){
-          self.devices[n].pause(function(err, status){
-              console.log(status)
+          self.devices[n].player.pause(function(){
               console.log('paused!')
-              self.devices[n].stopped = false
-              self.devices[n].playing = false
+              self.devices[n].stopped = false 
               self.devices[n].togglePlayIcon()
           })
       }else{
@@ -430,8 +296,7 @@ function togglePlay(n){
             console.log('seems stopped')
             if(self.devices[n].loadingPlayer != true){
                 self.devices[n].loadingPlayer = true
-                self.devices[n].play(this.playingResource,0,function(err, status){
-                    console.log(status)
+                self.devices[n].play(this.playingResource,0,function(){
                     console.log('telling to play from start again')
                     if(devices[n].togglePlayIcon){
                       console.log("Toggling play icon")
@@ -443,53 +308,21 @@ function togglePlay(n){
                 })
             }
           }else{
-            self.devices[n].unpause(function(err, status){
+            self.devices[n].player.play(function(){
                 console.log('just go to play!')
-                console.log(status)
                 self.devices[n].stopped = false
                 self.devices[n].togglePlayIcon()
-                //self.timePosition = options['currentTime'];
-                //self.startedTime = process.hrtime()[0];
             })
          }
       }
   }
-}*/
-
-function ensureClass(id, cl){
-    classList = document.getElementById(id).classList;
-    exist = false
-    for(var key in classList){
-        console.log(classList[key])
-        if(classList[key] === cl)
-            exist = true
-    }
-    if(!exist){
-        document.getElementById(id).classList.toggle(cl);
-    }
 }
-
-function ensureNotClass(id, cl){
-    classList = document.getElementById(id).classList;
-    exist = false
-    for(var key in classList){
-        console.log(classList[key])
-        if(classList[key] === cl)
-            exist = true
-    }
-    if(exist){
-        document.getElementById(id).classList.toggle(cl);
-    }
-}
-
 
 function toggleDevice(n){
     self.devices[n].active = !self.devices[n].active
     if(self.devices[n].playing){
         self.devices[n].stop()
     }
-    console.log("toggling device "+n)
-    console.log(JSON.stringify(document.getElementById('off'+n).classList))
     document.getElementById('off'+n).classList.toggle('offlabel');
     document.getElementById('airplay-icon'+n).classList.toggle('deviceiconOff');
 }
@@ -515,48 +348,30 @@ function addChromecastDeviceElement(label){
      document.getElementById('dropmessage').style.height = '100px';
      //var htmlDevice = ' <div  class="device" style="margin-top:22px;"> <div class="chromecontrols"> <div  onclick="togglePlay('+(ips.length-1)+');"><img id="playbutton'+(ips.length-1)+'" class="controlbutton"  class="playbutton"/></div> <div id="stopbutton'+(ips.length-1)+'"class="controlbutton hidden" onclick="toggleStop('+(ips.length-1)+');"><img class="stopbutton"/></div> </div><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" class="chromeicon"/> <p style="margin-top:-3px;">'+label+'</p> <div onclick="toggleChromecastDevice('+(ips.length-1)+');"><p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-36px;margin-left:-8px;" >OFF</p> </div></div> </div>'
      //document.getElementById('airplay').innerHTML += htmlDevice
-     document.getElementById('airplay').innerHTML += '<div  class="device"><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" style="margin-left:-4px;" class="chromeicon ChromedeviceiconOff"/> <p style="margin-top:-10px;">'+label+'</p> <p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-60px;">OFF</p>'+
-         '<div>'+
-         //'<img style="float:left; margin-top:34px; margin-left:0px;margin-right:0px;" class="rewindbutton hidden " id="rewindbutton'+(ips.length-1)+'"  />'+
-         '<img style="float:left; margin-top:34px; margin-left:0px;margin-right:0px;" class="rewindbutton hidden " id="rewindbutton'+(ips.length-1)+'"  onclick="rewind30('+(ips.length-1)+');"/>'+
-         '<img style="float:left; margin-top:-17px; margin-left:18px;" class="playbutton hidden pausebutton" id="playbutton'+(ips.length-1)+'"  onclick="togglePlay('+(ips.length-1)+');"/>'+
-         '<img style="float:left; margin-top:-17px; margin-left:29px; padding-left:7px;" class="forwardbutton hidden " id="forwardbutton'+(ips.length-1)+'"  onclick="forward30('+(ips.length-1)+');"/>'+
-         '</div> </div>'
-
-
-     document.getElementById('rewindbutton'+(ips.length-1)).classList.toggle('visible').onclick = rewind30
+     document.getElementById('airplay').innerHTML += '<div  class="device"><img onclick="toggleChromecastDevice('+(ips.length-1)+');" id="airplay-icon'+(ips.length-1)+'" class="chromeicon ChromedeviceiconOff"/> <p style="margin-top:-10px;">'+label+'</p> <p id="off'+(ips.length-1)+'" class="offlabel" style="margin-top:-60px;">OFF</p><div><img style="float:left; margin-top:34px; margin-left:18px;" class="playbutton hidden pausebutton" id="playbutton'+(ips.length-1)+'"  onclick="togglePlay('+(ips.length-1)+');"/></div> </div>'
      setUIspace()
-
-
 }
 
 chromecaster.on( 'deviceOn', function( device ) {
+   console.log(device)
    if(ips.indexOf(device.config.addresses[0])<0){
      ips.push(device.config.addresses[0])
      var name = device.config.name.substring(0,11)+ (device.config.name.length > 11 ? "..." : "")
      addChromecastDeviceElement(name)
-     device.connected    = false
+     device.connected    = false 
      device.active       = false
      device.playing      = false
      device.myNumberIs   = (ips.length-1)
-     device.streaming    = false
+     device.streaming    = false 
      device.playerButton = false
      device.stopped      = true
-     device.chromecast   = true
-     device.togglePlayIcon = function(status){
+     device.togglePlayIcon = function(){
         this.playing = !this.playing
-        if(status=='PAUSED')
-            ensureClass('playbutton'+this.myNumberIs,'pausebutton')
-
-        if(status=='PLAYING')
-            ensureNotClass('playbutton'+this.myNumberIs,'pausebutton')
-        //document.getElementById('playbutton'+this.myNumberIs).classList.toggle('pausebutton');
+        document.getElementById('playbutton'+this.myNumberIs).classList.toggle('pausebutton');
          //device.playerButtonHtml.toggle('pausebutton');
      }
      device.togglePlayControls = function(){
-          document.getElementById('rewindbutton'+this.myNumberIs).classList.toggle('hidden');
           document.getElementById('playbutton'+this.myNumberIs).classList.toggle('hidden');
-          document.getElementById('forwardbutton'+this.myNumberIs).classList.toggle('hidden');
      }
      device.on('connected', function(){
         this.active       = true
@@ -570,9 +385,9 @@ chromecaster.on( 'deviceOn', function( device ) {
 });
 
 browser.on( 'deviceOn', function( device ) {
-    console.log(device)
    if(ips.indexOf(device.info[0])<0){
      ips.push(device.info[0])
+     console.log(ips)
      var name = device.name.substring(0,7)+ (device.name.length > 7 ? "..." : "")
      //var name = device.name
      addDeviceElement(name)
@@ -583,27 +398,17 @@ browser.on( 'deviceOn', function( device ) {
      //console.log('tryToPlay')
      emitter.emit('wantToPlay');
   }
-    device.on('NoFFMPEG', function(){
-       showMessage("<a onclick='NoFFMPEGExplanation()' href='#'>FFMPEG not found :(</a>")
-    })
-
 });
 
-function NoFFMPEGExplanation(){
-    gui.Shell.openExternal("http://torrentv.github.io/noffmpeg")
-}
+browser.start();
 
-    browser.start();
-
-
-/*
 browserXbmc.on( 'deviceOn', function( device ) {
    if(ips.indexOf(device.info[0])<0){
      ips.push(device.info[0])
      console.log(ips)
      var name = device.name.substring(0,7)+ (device.name.length > 7 ? "..." : "")
      addDeviceElement(name)
-
+     
      device.active = true
      console.log("XBMC found!", device)
      self.devices.push(device)
@@ -613,7 +418,7 @@ browserXbmc.on( 'deviceOn', function( device ) {
 });
 
 browserXbmc.start();
-*/
+
 
 function killIntervals(){
   //console.log("Killing all intervals");
@@ -628,8 +433,8 @@ var gotTorrent = function (this_torrent){
    showMessage("Processing Torrent")
 
    if(!loading){
-     document.getElementById('topimages').classList.toggle('visible');
-     document.getElementById('topimages').classList.toggle('hidden');
+     document.getElementById('arrow').classList.toggle('visible');
+     document.getElementById('arrow').classList.toggle('hidden');
      document.getElementById('processing').classList.toggle('processing-icon');
    }
    loading = true
@@ -641,7 +446,6 @@ var gotTorrent = function (this_torrent){
 
   var engine = peerflix(this_torrent, {});
   //engine.swarm.piecesGot = 0
-  console.log('peerflix started')
 
   var hotswaps = 0;
   var verified = 0;
@@ -702,7 +506,7 @@ var gotTorrent = function (this_torrent){
         movieNameToShow = movieName
     }
     if(movieHash.length>0 && isMac){
-      secondaryMessage(movieNameToShow+" ["+bytes(filelength)+"]");
+      secondaryMessage("<a class='cursored' onclick='openInFinder(\'"+engine.path+"\'); '>"+movieNameToShow+" ["+bytes(filelength)+"] </a>");
     }else{
       secondaryMessage(movieNameToShow+" ["+bytes(filelength)+"]");
     }
@@ -717,11 +521,24 @@ var gotTorrent = function (this_torrent){
 
     var tryToPlay = function(){
       console.log('tryToPlay')
-      torrenting = true
       if(self.devices){
         console.log(self.devices)
-        playInDevices(href, href)
-
+        playInDevices(href)
+        /*
+        self.devices.forEach(function(dev){
+          if(dev.active){
+            showMessage("Streaming")
+            dev.play(href, 0, function() {
+              console.log(">>> Playing in devices: "+href)
+              showMessage("Streaming")
+              if(dev.togglePlayIcon){
+                console.log("Toggling play icon")
+                dev.togglePlayIcon()
+              }
+            });
+          }
+        });
+        */
       }
     };
 
@@ -730,6 +547,5 @@ var gotTorrent = function (this_torrent){
     emitter.emit('wantToPlay');
 
   });
+  
 }
-
-xmlRokuServer()
