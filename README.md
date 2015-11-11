@@ -18,6 +18,7 @@ Visit the project's website at <http://torrentv.github.io>.
 1. `cd TorrenTV`
 1. `npm install`
 1. `npm install -g grunt-cli`
+1. `npm install grunt --save-dev`
 1. `npm install -g bower`
 1. `grunt build`
 1. `grunt start`
