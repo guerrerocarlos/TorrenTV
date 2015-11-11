@@ -14,8 +14,11 @@ Visit the project's website at <http://torrentv.github.io>.
 
 #### Quickstart for developers:
 
-1. `npm install -g grunt-cli bower`
+1. `git clone --depth=1 https://github.com/freecodecamp/freecodecamp.git freecodecamp`
+1. `cd TorrenTV`
 1. `npm install`
+1. `npm install -g grunt-cli`
+1. `npm install -g bower`
 1. `grunt build`
 1. `grunt start`
 
